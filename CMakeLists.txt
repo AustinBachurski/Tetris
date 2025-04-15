@@ -11,4 +11,4 @@ find_package(Curses REQUIRED)
 
 add_executable(tetris src/main.c)
 
-target_link_libraries(scratch ${CURSES_LIBRARIES})
+target_link_libraries(tetris ${CURSES_LIBRARIES})
