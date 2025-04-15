@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -10,7 +11,9 @@
 #define ROWS    20
 #define COLUMNS 10
 #define TETRIMINO_COUNT 7
-#define SPAWN_LOCATION 4
+#define SQUARES_PER_TETRIMINO 4
+#define SPAWN_ROW 0
+#define SPAWN_COLUMN 4
 
 #define TEXT_COLUMNS (COLUMNS * 2)
 #define PLAYFIELD_OFFSET_ROWS 15
@@ -65,11 +68,112 @@ TetriminoColor playfield[ROWS][COLUMNS] = {
 
 typedef struct
 {
-    int centroid;
+    int row;
+    int column;
     TetriminoColor type;
     Orientation orientation;
 
 } Tetrimino;
+
+typedef struct
+{
+    int row;
+    int column;
+} Vec2;
+
+void indicies_for_down(Tetrimino *current, Vec2 indicies[])
+{
+    switch (current->type)
+    {
+        case Tetrimino_empty:
+            // TODO: Probably a better way to do this...
+            assert(false);
+            return;
+
+        case Tetrimino_lightBlue:
+            indicies[0].row = current->row;
+            indicies[0].column = current->column;
+            indicies[1].row = current->row;
+            indicies[1].column = current->column - 1;
+            indicies[2].row = current->row;
+            indicies[2].column = current->column + 1;
+            indicies[3].row = current->row;
+            indicies[3].column = current->column + 2;
+            return;
+
+        case Tetrimino_darkBlue:
+            return;
+
+        case Tetrimino_orange:
+            return;
+
+        case Tetrimino_yellow:
+            return;
+
+        case Tetrimino_green:
+            return;
+
+        case Tetrimino_red:
+            return;
+
+        case Tetrimino_magenta:
+            return;
+    }
+}
+
+[[nodiscard]]
+bool valid_move(Vec2 indicies[])
+{
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        if (indicies[i].row < 0 || indicies[i].column < 0)
+        {
+            return false;
+        }
+
+        if (indicies[i].row >= ROWS || indicies[i].column >= COLUMNS)
+        {
+            return false;
+        }
+
+        if (playfield[indicies[i].row][indicies[i].column] != Tetrimino_empty)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+[[nodiscard]]
+bool move_down(Tetrimino *current)
+{
+    Vec2 indicies[SQUARES_PER_TETRIMINO];
+    indicies_for_down(current, indicies);
+    ++current->row;
+
+    // TODO: Working here.
+    // Indicies have not been modified at this point, need to switch it up - 
+    // check that the indicies are in bounds here, then we'll have to check the
+    // increment for overlap.  Currently it's checking itself since the 
+    // increment hasn't happened.
+    if (!valid_move(indicies))
+    {
+        return false;
+    }
+
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        playfield[indicies[i].row++][indicies[i].column] = Tetrimino_empty;
+    }
+
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        playfield[indicies[i].row][indicies[i].column] = current->type;
+    }
+
+    return true;
+}
 
 void spawn_tetrimino(Tetrimino *current)
 {
@@ -216,6 +320,8 @@ TetriminoColor get_next_tetrimino(TetriminoColor bag[])
 int main(void)
 {
     srand(time(NULL));
+
+    [[maybe_unused]]
     TetriminoColor bag[7] = {
         Tetrimino_lightBlue,
         Tetrimino_darkBlue,
@@ -253,19 +359,25 @@ int main(void)
     init_windows(windows);
     init_colors();
 
-    Tetrimino current = { SPAWN_LOCATION, get_next_tetrimino(bag), Facing_up };
-    //Tetrimino next = { SPAWN_LOCATION, get_next_tetrimino(bag), Facing_up };
+    Tetrimino current = { SPAWN_ROW, SPAWN_COLUMN, Tetrimino_lightBlue, Facing_up };
+    //Tetrimino current = { SPAWN_ROW, SPAWN_COLUMN, get_next_tetrimino(bag), Facing_up };
+    //Tetrimino next = { SPAWN_ROW, SPAWN_COLUMN, get_next_tetrimino(bag), Facing_up };
 
     spawn_tetrimino(&current);
 
     // Game Loop
-    //while(true)
-    //{
+    while(true)
+    {
         update_screen(windows);
         refresh();
         getch();
 
-    //}
+        if (!move_down(&current))
+        {
+            finish(0);
+        }
+
+    }
 
     finish(0);
 }
