@@ -1,0 +1,16 @@
+#ifndef TETRIS_UI_COLORS_H
+#define TETRIS_UI_COLORS_H
+
+#include <curses.h>
+
+
+#define CUSTOM_COLOR_LIGHTBLUE 51
+#define CUSTOM_COLOR_DARKBLUE  57
+#define CUSTOM_COLOR_ORANGE    208
+#define CUSTOM_COLOR_YELLOW    190
+#define CUSTOM_COLOR_GREEN     46
+#define CUSTOM_COLOR_RED       196
+#define CUSTOM_COLOR_MAGENTA   171
+
+
+#endif

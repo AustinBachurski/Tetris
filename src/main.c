@@ -255,9 +255,9 @@ bool move_down(Tetrimino *current)
     return true;
 }
 
-void show_preview(Tetrimino *current)
+void show_preview(Game *game)
 {
-    switch (current->type)
+    switch (game->currentTetrimino.type)
     {
         case Tetrimino_empty:
             // TODO: Should never happen - how to handle error?
