@@ -1,82 +1,96 @@
-#include <assert.h>
+#include <curses.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
-#include <curses.h>
-#include <signal.h>
 #include <unistd.h>
 
-
-#define ROWS    20
-#define COLUMNS 10
-#define TETRIMINO_COUNT 7
-#define SQUARES_PER_TETRIMINO 4
-#define SPAWN_ROW 0
-#define SPAWN_COLUMN 4
-
-#define TEXT_COLUMNS (COLUMNS * 2)
+#define PLAYFIELD_ROWS 20
+#define PLAYFIELD_COLUMNS 10
+#define PLAYFIELD_TEXT_COLUMNS (PLAYFIELD_COLUMNS * 2)
 #define PLAYFIELD_OFFSET_ROWS 15
 #define PLAYFIELD_OFFSET_COLUMNS 45
 
+#define PREVIEW_ROWS 2
+#define PREVIEW_COLUMNS 6
+#define PREVIEW_TEXT_COLUMNS (PREVIEW_COLUMNS * 2)
+#define PREVIEW_OFFSET_ROWS 25
+#define PREVIEW_OFFSET_COLUMNS 70
+
+#define TETRIMINO_COUNT 7
+#define SQUARES_PER_TETRIMINO 4
+
+
 static void finish(int _);
 
-typedef enum 
-{
-    Tetrimino_empty     = 0,
+typedef enum {
+    Tetrimino_empty = 0,
     Tetrimino_lightBlue = 1,
-    Tetrimino_darkBlue  = 2,
-    Tetrimino_orange    = 3,
-    Tetrimino_yellow    = 4,
-    Tetrimino_green     = 5,
-    Tetrimino_red       = 6,
-    Tetrimino_magenta   = 7,
-
+    Tetrimino_darkBlue = 2,
+    Tetrimino_orange = 3,
+    Tetrimino_yellow = 4,
+    Tetrimino_green = 5,
+    Tetrimino_red = 6,
+    Tetrimino_magenta = 7,
 } TetriminoColor;
 
-typedef enum
-{
+typedef enum {
     Facing_up,
     Facing_down,
     Facing_right,
     Facing_left,
-
 } Orientation;
 
-TetriminoColor playfield[ROWS][COLUMNS] = {
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+TetriminoColor playfield[PLAYFIELD_ROWS][PLAYFIELD_COLUMNS] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
-typedef struct
+void clear_playfield()
 {
-    int row;
-    int column;
+    memset(playfield, 0,
+           PLAYFIELD_ROWS * PLAYFIELD_COLUMNS * sizeof(TetriminoColor));
+}
+
+TetriminoColor preview[PREVIEW_ROWS][PREVIEW_COLUMNS] = {
+    {0, 0, 0, 0, 0, 0 },
+    {0, 0, 0, 0, 0, 0 },
+};
+
+void clear_preview()
+{
+    memset(preview, 0,
+           PREVIEW_ROWS * PREVIEW_COLUMNS * sizeof(TetriminoColor));
+}
+
+typedef struct {
+    int centroidRow;
+    int centroidColumn;
     TetriminoColor type;
     Orientation orientation;
-
 } Tetrimino;
 
-typedef struct
-{
+typedef struct {
     int row;
     int column;
 } Vec2;
@@ -87,58 +101,129 @@ void indicies_for_down(Tetrimino *current, Vec2 indicies[])
     {
         case Tetrimino_empty:
             // TODO: Probably a better way to do this...
-            assert(false);
             return;
 
         case Tetrimino_lightBlue:
-            indicies[0].row = current->row;
-            indicies[0].column = current->column;
-            indicies[1].row = current->row;
-            indicies[1].column = current->column - 1;
-            indicies[2].row = current->row;
-            indicies[2].column = current->column + 1;
-            indicies[3].row = current->row;
-            indicies[3].column = current->column + 2;
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow + 1;
+            indicies[1].column = current->centroidColumn - 1;
+            indicies[2].row = current->centroidRow + 1;
+            indicies[2].column = current->centroidColumn + 1;
+            indicies[3].row = current->centroidRow + 1;
+            indicies[3].column = current->centroidColumn + 2;
             return;
 
         case Tetrimino_darkBlue:
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow + 1;
+            indicies[1].column = current->centroidColumn - 1;
+            indicies[2].row = current->centroidRow;
+            indicies[2].column = current->centroidColumn - 1;
+            indicies[3].row = current->centroidRow + 1;
+            indicies[3].column = current->centroidColumn + 1;
             return;
 
         case Tetrimino_orange:
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow + 1;
+            indicies[1].column = current->centroidColumn - 1;
+            indicies[2].row = current->centroidRow + 1;
+            indicies[2].column = current->centroidColumn + 1;
+            indicies[3].row = current->centroidRow;
+            indicies[3].column = current->centroidColumn + 1;
             return;
 
         case Tetrimino_yellow:
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow + 1;
+            indicies[1].column = current->centroidColumn + 1;
+            indicies[2].row = current->centroidRow;
+            indicies[2].column = current->centroidColumn;
+            indicies[3].row = current->centroidRow;
+            indicies[3].column = current->centroidColumn + 1;
             return;
 
         case Tetrimino_green:
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow + 1;
+            indicies[1].column = current->centroidColumn - 1;
+            indicies[2].row = current->centroidRow;
+            indicies[2].column = current->centroidColumn;
+            indicies[3].row = current->centroidRow;
+            indicies[3].column = current->centroidColumn + 1;
             return;
 
         case Tetrimino_red:
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow;
+            indicies[1].column = current->centroidColumn;
+            indicies[2].row = current->centroidRow;
+            indicies[2].column = current->centroidColumn - 1;
+            indicies[3].row = current->centroidRow + 1;
+            indicies[3].column = current->centroidColumn + 1;
             return;
 
         case Tetrimino_magenta:
+            indicies[0].row = current->centroidRow + 1;
+            indicies[0].column = current->centroidColumn;
+            indicies[1].row = current->centroidRow + 1;
+            indicies[1].column = current->centroidColumn - 1;
+            indicies[2].row = current->centroidRow;
+            indicies[2].column = current->centroidColumn;
+            indicies[3].row = current->centroidRow + 1;
+            indicies[3].column = current->centroidColumn + 1;
             return;
     }
 }
 
 [[nodiscard]]
-bool valid_move(Vec2 indicies[])
+bool is_self(Vec2 indicies[], int currentRow, int currentColumn)
 {
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
-        if (indicies[i].row < 0 || indicies[i].column < 0)
+        if (indicies[i].row - 1 == currentRow
+            && indicies[i].column == currentColumn)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+[[nodiscard]]
+bool valid_move(Vec2 indicies[])
+{
+    int currentRow = 0;
+    int currentColumn = 0;
+
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        currentRow = indicies[i].row;
+        currentColumn = indicies[i].column;
+
+        if (currentRow < 0 || currentColumn < 0)
         {
             return false;
         }
 
-        if (indicies[i].row >= ROWS || indicies[i].column >= COLUMNS)
+        if (currentRow >= PLAYFIELD_ROWS || currentColumn >= PLAYFIELD_COLUMNS)
         {
             return false;
         }
 
-        if (playfield[indicies[i].row][indicies[i].column] != Tetrimino_empty)
+        if (playfield[currentRow][currentColumn] != Tetrimino_empty)
         {
-            return false;
+            if (!is_self(indicies, currentRow, currentColumn))
+            {
+                return false;
+            }
         }
     }
 
@@ -150,13 +235,7 @@ bool move_down(Tetrimino *current)
 {
     Vec2 indicies[SQUARES_PER_TETRIMINO];
     indicies_for_down(current, indicies);
-    ++current->row;
 
-    // TODO: Working here.
-    // Indicies have not been modified at this point, need to switch it up - 
-    // check that the indicies are in bounds here, then we'll have to check the
-    // increment for overlap.  Currently it's checking itself since the 
-    // increment hasn't happened.
     if (!valid_move(indicies))
     {
         return false;
@@ -164,7 +243,7 @@ bool move_down(Tetrimino *current)
 
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
-        playfield[indicies[i].row++][indicies[i].column] = Tetrimino_empty;
+        playfield[indicies[i].row - 1][indicies[i].column] = Tetrimino_empty;
     }
 
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
@@ -172,7 +251,94 @@ bool move_down(Tetrimino *current)
         playfield[indicies[i].row][indicies[i].column] = current->type;
     }
 
+    ++current->centroidRow;
     return true;
+}
+
+void show_preview(Tetrimino *current)
+{
+    switch (current->type)
+    {
+        case Tetrimino_empty:
+            // TODO: Should never happen - how to handle error?
+            return;
+
+        //   [ ][*][ ][ ]
+        case Tetrimino_lightBlue:
+            current->centroidRow = 0;
+            current->centroidColumn = 4;
+            preview[0][1] = current->type;
+            preview[0][2] = current->type;
+            preview[0][3] = current->type;
+            preview[0][4] = current->type;
+            return;
+
+        //   [ ]
+        //   [ ][*][ ]
+        case Tetrimino_darkBlue:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            preview[0][1] = current->type;
+            preview[1][1] = current->type;
+            preview[1][2] = current->type;
+            preview[1][3] = current->type;
+            return;
+
+        //         [ ]
+        //   [ ][*][ ]
+        case Tetrimino_orange:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            preview[1][1] = current->type;
+            preview[1][2] = current->type;
+            preview[1][3] = current->type;
+            preview[0][3] = current->type;
+            return;
+
+        //   [ ][ ]
+        //   [*][ ]
+        case Tetrimino_yellow:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            preview[0][2] = current->type;
+            preview[0][3] = current->type;
+            preview[1][2] = current->type;
+            preview[1][3] = current->type;
+            return;
+
+        //   [ ][ ]
+        //      [*][ ]
+        case Tetrimino_red:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            preview[0][1] = current->type;
+            preview[0][2] = current->type;
+            preview[1][2] = current->type;
+            preview[1][3] = current->type;
+            return;
+
+        //      [ ][ ]
+        //   [ ][*]
+        case Tetrimino_green:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            preview[0][2] = current->type;
+            preview[0][3] = current->type;
+            preview[1][1] = current->type;
+            preview[1][2] = current->type;
+            return;
+
+        //      [ ]
+        //   [ ][*][ ]
+        case Tetrimino_magenta:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            preview[0][2] = current->type;
+            preview[1][1] = current->type;
+            preview[1][2] = current->type;
+            preview[1][3] = current->type;
+            return;
+    }
 }
 
 void spawn_tetrimino(Tetrimino *current)
@@ -183,43 +349,89 @@ void spawn_tetrimino(Tetrimino *current)
             // TODO: Should never happen - how to handle error?
             return;
 
+        //   [ ][*][ ][ ]
         case Tetrimino_lightBlue:
+            current->centroidRow = 0;
+            current->centroidColumn = 4;
             playfield[0][3] = current->type;
             playfield[0][4] = current->type;
             playfield[0][5] = current->type;
             playfield[0][6] = current->type;
             return;
 
+        //   [ ]
+        //   [ ][*][ ]
         case Tetrimino_darkBlue:
-            [[fallthrough]];
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            playfield[0][3] = current->type;
+            playfield[1][3] = current->type;
+            playfield[1][4] = current->type;
+            playfield[1][5] = current->type;
+            return;
+
+        //         [ ]
+        //   [ ][*][ ]
         case Tetrimino_orange:
-            [[fallthrough]];
-        case Tetrimino_magenta:
-            playfield[0][3] = current->type;
-            playfield[0][4] = current->type;
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            playfield[1][3] = current->type;
+            playfield[1][4] = current->type;
+            playfield[1][5] = current->type;
             playfield[0][5] = current->type;
             return;
 
+        //   [ ][ ]
+        //   [*][ ]
         case Tetrimino_yellow:
-            [[fallthrough]];
-        case Tetrimino_red:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
             playfield[0][4] = current->type;
             playfield[0][5] = current->type;
+            playfield[1][4] = current->type;
+            playfield[1][5] = current->type;
             return;
 
-        case Tetrimino_green:
+        //   [ ][ ]
+        //      [*][ ]
+        case Tetrimino_red:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
             playfield[0][3] = current->type;
             playfield[0][4] = current->type;
+            playfield[1][4] = current->type;
+            playfield[1][5] = current->type;
+            return;
+
+        //      [ ][ ]
+        //   [ ][*]
+        case Tetrimino_green:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            playfield[0][4] = current->type;
+            playfield[0][5] = current->type;
+            playfield[1][3] = current->type;
+            playfield[1][4] = current->type;
+            return;
+
+        //      [ ]
+        //   [ ][*][ ]
+        case Tetrimino_magenta:
+            current->centroidRow = 1;
+            current->centroidColumn = 4;
+            playfield[0][4] = current->type;
+            playfield[1][3] = current->type;
+            playfield[1][4] = current->type;
+            playfield[1][5] = current->type;
             return;
     }
 }
 
-void init_windows(WINDOW *windows[ROWS])
+void init_windows(WINDOW *windows[PLAYFIELD_ROWS])
 {
-    for (int i = 0; i < ROWS; ++i)
+    for (int i = 0; i < PLAYFIELD_ROWS; ++i)
     {
-        windows[i] = newwin(1,
-                            TEXT_COLUMNS,
+        windows[i] = newwin(1, PLAYFIELD_TEXT_COLUMNS,
                             PLAYFIELD_OFFSET_ROWS + i,
                             PLAYFIELD_OFFSET_COLUMNS);
         wrefresh(windows[i]);
@@ -228,32 +440,50 @@ void init_windows(WINDOW *windows[ROWS])
 
 void init_colors()
 {
-    init_pair(Tetrimino_empty,     COLOR_BLACK, COLOR_BLACK);
+    init_pair(Tetrimino_empty, COLOR_BLACK, COLOR_BLACK);
     init_pair(Tetrimino_lightBlue, COLOR_BLACK, 51);
-    init_pair(Tetrimino_darkBlue,  COLOR_BLACK, 57);
-    init_pair(Tetrimino_orange,    COLOR_BLACK, 208);
-    init_pair(Tetrimino_yellow,    COLOR_BLACK, 190);
-    init_pair(Tetrimino_green,     COLOR_BLACK, 46);
-    init_pair(Tetrimino_red,       COLOR_BLACK, 196);
-    init_pair(Tetrimino_magenta,   COLOR_BLACK, 171);
+    init_pair(Tetrimino_darkBlue, COLOR_BLACK, 57);
+    init_pair(Tetrimino_orange, COLOR_BLACK, 208);
+    init_pair(Tetrimino_yellow, COLOR_BLACK, 190);
+    init_pair(Tetrimino_green, COLOR_BLACK, 46);
+    init_pair(Tetrimino_red, COLOR_BLACK, 196);
+    init_pair(Tetrimino_magenta, COLOR_BLACK, 171);
 }
 
-void update_screen(WINDOW *windows[ROWS])
+void update_screen(WINDOW *playfieldWindow[PLAYFIELD_ROWS],
+                   WINDOW *previewWindow[PREVIEW_ROWS])
 {
     int insertion = 0;
 
-    for (int row = 0; row < ROWS; ++row)
+    for (int row = 0; row < PLAYFIELD_ROWS; ++row)
     {
         insertion = 0;
 
-        for (int column = 0; column < COLUMNS; ++column)
+        for (int column = 0; column < PLAYFIELD_COLUMNS; ++column)
         {
-            WINDOW *window = windows[row];
+            WINDOW *window = playfieldWindow[row];
 
             wattron(window, COLOR_PAIR(playfield[row][column]));
             mvwprintw(window, 0, insertion++, " ");
             mvwprintw(window, 0, insertion++, " ");
             wattroff(window, COLOR_PAIR(playfield[row][column]));
+            wrefresh(window);
+            refresh();
+        }
+    }
+
+    for (int row = 0; row < PREVIEW_ROWS; ++row)
+    {
+        insertion = 0;
+
+        for (int column = 0; column < PREVIEW_COLUMNS; ++column)
+        {
+            WINDOW *window = previewWindow[row];
+
+            wattron(window, COLOR_PAIR(preview[row][column]));
+            mvwprintw(window, 0, insertion++, " ");
+            mvwprintw(window, 0, insertion++, " ");
+            wattroff(window, COLOR_PAIR(preview[row][column]));
             wrefresh(window);
             refresh();
         }
@@ -303,7 +533,7 @@ TetriminoColor get_next_tetrimino(TetriminoColor bag[])
         reset_bag(bag);
         return selection;
     }
-    
+
     int index = rand() % (TETRIMINO_COUNT - 1);
 
     while (bag[index] == Tetrimino_empty)
@@ -313,15 +543,101 @@ TetriminoColor get_next_tetrimino(TetriminoColor bag[])
 
     selection = bag[index];
     bag[index] = Tetrimino_empty;
-    
+
     return selection;
+}
+
+bool game_over(Tetrimino *next)
+{
+    switch (next->type)
+    {
+        case Tetrimino_empty:
+            // TODO: Should never happen - how to handle error?
+            return false;
+
+        case Tetrimino_lightBlue:
+            if (playfield[0][3] != Tetrimino_empty
+                || playfield[0][4] != Tetrimino_empty
+                || playfield[0][5] != Tetrimino_empty
+                || playfield[0][6] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_darkBlue:
+            if (playfield[0][3] != Tetrimino_empty
+                || playfield[1][3] != Tetrimino_empty
+                || playfield[1][4] != Tetrimino_empty
+                || playfield[1][5] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_orange:
+            if (playfield[1][3] != Tetrimino_empty
+                || playfield[1][4] != Tetrimino_empty
+                || playfield[1][5] != Tetrimino_empty
+                || playfield[0][5] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_yellow:
+            if (playfield[0][4] != Tetrimino_empty
+                || playfield[0][5] != Tetrimino_empty
+                || playfield[1][4] != Tetrimino_empty
+                || playfield[1][5] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_red:
+            if (playfield[0][3] != Tetrimino_empty
+                || playfield[0][4] != Tetrimino_empty
+                || playfield[1][4] != Tetrimino_empty
+                || playfield[1][5] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_green:
+            if (playfield[0][4] != Tetrimino_empty
+                || playfield[0][5] != Tetrimino_empty
+                || playfield[1][3] != Tetrimino_empty
+                || playfield[1][4] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_magenta:
+            if (playfield[0][3] != Tetrimino_empty
+                || playfield[0][4] != Tetrimino_empty
+                || playfield[0][5] != Tetrimino_empty
+                || playfield[1][4] != Tetrimino_empty)
+            {
+                return true;
+            }
+            return false;
+    }
+
+    return true; // TODO: Handle this.
+}
+
+Tetrimino make_random_tetrimino(TetriminoColor bag[])
+{
+    return (Tetrimino){0, 0, get_next_tetrimino(bag), Facing_up};
 }
 
 int main(void)
 {
     srand(time(NULL));
 
-    [[maybe_unused]]
     TetriminoColor bag[7] = {
         Tetrimino_lightBlue,
         Tetrimino_darkBlue,
@@ -338,45 +654,85 @@ int main(void)
     start_color();
     noecho();
 
-    if (COLORS < 256) {
+    if (COLORS < 256)
+    {
         endwin();
         printw("256-color mode not supported.");
         getch();
         finish(1);
     }
-    
+
+    init_colors();
+
     // Playfield Border
-    WINDOW *playfieldBorder = newwin(ROWS + 2,
-                                     TEXT_COLUMNS + 2,
-                                     PLAYFIELD_OFFSET_ROWS - 1,
-                                     PLAYFIELD_OFFSET_COLUMNS - 1);
+    WINDOW *playfieldBorder =
+        newwin(PLAYFIELD_ROWS + 2, PLAYFIELD_TEXT_COLUMNS + 2,
+               PLAYFIELD_OFFSET_ROWS - 1, PLAYFIELD_OFFSET_COLUMNS - 1);
     box(playfieldBorder, 0, 0);
     refresh();
     wrefresh(playfieldBorder);
 
     // Playfield Init
-    WINDOW *windows[ROWS];
-    init_windows(windows);
-    init_colors();
+    WINDOW *playfieldWindows[PLAYFIELD_ROWS];
+    init_windows(playfieldWindows);
 
-    Tetrimino current = { SPAWN_ROW, SPAWN_COLUMN, Tetrimino_lightBlue, Facing_up };
-    //Tetrimino current = { SPAWN_ROW, SPAWN_COLUMN, get_next_tetrimino(bag), Facing_up };
-    //Tetrimino next = { SPAWN_ROW, SPAWN_COLUMN, get_next_tetrimino(bag), Facing_up };
+    // Preview Border
+    WINDOW *previewBorder =
+        newwin(PREVIEW_ROWS + 2, PREVIEW_TEXT_COLUMNS + 2,
+               PREVIEW_OFFSET_ROWS - 1, PREVIEW_OFFSET_COLUMNS - 1);
+    box(previewBorder, 0, 0);
+    mvwprintw(previewBorder, 0, 5, "Next");
+    refresh();
+    wrefresh(previewBorder);
+
+    // Preview Init
+    WINDOW *previewWindows[PREVIEW_ROWS] = {
+        newwin(1, PREVIEW_TEXT_COLUMNS, PREVIEW_OFFSET_ROWS,
+               PREVIEW_OFFSET_COLUMNS),
+        newwin(1, PREVIEW_TEXT_COLUMNS, PREVIEW_OFFSET_ROWS + 1,
+               PREVIEW_OFFSET_COLUMNS),
+    };
+    refresh();
+    wrefresh(previewWindows[0]);
+    wrefresh(previewWindows[1]);
+
+
+    Tetrimino current = make_random_tetrimino(bag);
+    Tetrimino next = make_random_tetrimino(bag);
 
     spawn_tetrimino(&current);
+    show_preview(&next);
 
     // Game Loop
-    while(true)
+    while (true)
     {
-        update_screen(windows);
+        update_screen(playfieldWindows, previewWindows);
         refresh();
-        getch();
+        // getch();
 
         if (!move_down(&current))
         {
-            finish(0);
-        }
+            getch();
+            if (game_over(&next))
+            {
+                mvwprintw(playfieldBorder, 0, 6, "Game Over");
+                wrefresh(playfieldBorder);
+                char choice = getch();
+                while (choice != 'n')
+                {
+                    choice = getch();
+                }
+                finish(0);
 
+                // Reset and Restart
+            }
+
+            current = next;
+            next = make_random_tetrimino(bag);
+            clear_preview();
+            show_preview(&next);
+            spawn_tetrimino(&current);
+        }
     }
 
     finish(0);
@@ -387,3 +743,4 @@ static void finish([[maybe_unused]] int _)
     endwin();
     exit(0);
 }
+
