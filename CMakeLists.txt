@@ -9,6 +9,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
 
 find_package(Curses REQUIRED)
 
-add_executable(tetris src/main.c)
+add_executable(tetris src/main.c
+                      src/game/game.c
+                      src/ui/ui.c
+)
+
+target_include_directories(tetris PRIVATE src/game
+                                          src/tetriminos
+                                          src/ui
+)
 
 target_link_libraries(tetris ${CURSES_LIBRARIES})
+

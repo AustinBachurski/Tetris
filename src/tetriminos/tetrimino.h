@@ -1,9 +1,6 @@
 #ifndef TETRIS_TETRIMINO_H
 #define TETRIS_TETRIMINO_H
 
-#define TETRIMINO_COUNT 7
-
-
 typedef enum {
     Tetrimino_empty = 0,
     Tetrimino_lightBlue = 1,
@@ -23,8 +20,7 @@ typedef enum {
 } Orientation;
 
 typedef struct {
-    int centroidRow;
-    int centroidColumn;
+    int centroid;
     TetriminoColor type;
     Orientation orientation;
 } Tetrimino;
