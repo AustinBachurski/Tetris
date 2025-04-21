@@ -11,6 +11,7 @@ find_package(Curses REQUIRED)
 
 add_executable(tetris src/main.c
                       src/game/game.c
+                      src/tetriminos/gravity.c
                       src/ui/ui.c
 )
 

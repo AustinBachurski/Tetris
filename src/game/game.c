@@ -1,6 +1,8 @@
 #include "game.h"
+
 #include "gamesettings.h"
 #include "../ui/ui.h"
+#include "../tetriminos/gravity.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,21 +16,28 @@ void play_tetris(void)
     while (true)
     {
         draw_playfield(&game);
-    }
 
+        //getch();
+
+        if (!move_down(&game))
+        {
+            if (!is_game_over(&game))
+            {
+                cycle_in_next_tetrimino(&game);
+            }
+            else
+            {
+                show_game_over(&game);
+            }
+        }
+    }
 
     exit_game(0);
 }
 
-void initialize_game(GameData *game)
+void clear_playfield(GameData *game)
 {
-    srand(time(NULL));
-    reset_bag(game->randomBag);
-    game->nextTetrimino = make_random_tetrimino(game->randomBag);
-    initialize_ui(game);
-    set_preview(game);
-    wait_for_keypress(game);
-    cycle_in_next_tetrimino(game);
+    memset(game->playfield, 0, PLAYFIELD_SIZE * sizeof(TetriminoColor));
 }
 
 void cycle_in_next_tetrimino(GameData *game)
@@ -39,28 +48,121 @@ void cycle_in_next_tetrimino(GameData *game)
     set_preview(game);
 }
 
-void wait_for_keypress(GameData *game)
+bool is_game_over(GameData *game)
 {
-    mvwprintw(game->ui.playfieldWindow, 8, 4, "Press any key");
-    mvwprintw(game->ui.playfieldWindow, 9, 5, "to begin...");
-    wrefresh(game->ui.playfieldWindow);
-    getch();
-    mvwprintw(game->ui.playfieldWindow, 8, 4, "             ");
-    mvwprintw(game->ui.playfieldWindow, 9, 5, "           ");
-    wrefresh(game->ui.playfieldWindow);
-}
-
-void clear_playfield(GameData *game)
-{
-    memset(game->playfield, 0, PLAYFIELD_SIZE * sizeof(TetriminoColor));
-}
-
-void reset_bag(TetriminoColor bag[])
-{
-    for (int i = 0; i < TETRIMINO_COUNT; ++i)
+    switch (game->nextTetrimino.type)
     {
-        bag[i] = (TetriminoColor)(i + 1);
+        case Tetrimino_empty:
+            // TODO: Should never happen - how to handle error?
+            return false;
+
+        case Tetrimino_lightBlue:
+            if (Tetrimino_empty !=  game->playfield[3]
+                ||Tetrimino_empty !=  game->playfield[4]
+                ||Tetrimino_empty !=  game->playfield[5]
+                ||Tetrimino_empty !=  game->playfield[6])
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_darkBlue:
+            if (Tetrimino_empty !=  game->playfield[3]
+                ||Tetrimino_empty !=  game->playfield[13]
+                ||Tetrimino_empty !=  game->playfield[14]
+                ||Tetrimino_empty !=  game->playfield[15])
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_orange:
+            if (Tetrimino_empty !=  game->playfield[5]
+                ||Tetrimino_empty !=  game->playfield[13]
+                ||Tetrimino_empty !=  game->playfield[14]
+                ||Tetrimino_empty !=  game->playfield[15])
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_yellow:
+            if (Tetrimino_empty !=  game->playfield[4]
+                ||Tetrimino_empty !=  game->playfield[5]
+                ||Tetrimino_empty !=  game->playfield[14]
+                ||Tetrimino_empty !=  game->playfield[15])
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_green:
+            if (Tetrimino_empty !=  game->playfield[4]
+                ||Tetrimino_empty !=  game->playfield[5]
+                ||Tetrimino_empty !=  game->playfield[13]
+                ||Tetrimino_empty !=  game->playfield[14])
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_red:
+            if (Tetrimino_empty !=  game->playfield[3]
+                ||Tetrimino_empty !=  game->playfield[4]
+                ||Tetrimino_empty !=  game->playfield[14]
+                ||Tetrimino_empty !=  game->playfield[15])
+            {
+                return true;
+            }
+            return false;
+
+        case Tetrimino_magenta:
+            if (Tetrimino_empty !=  game->playfield[4]
+                ||Tetrimino_empty !=  game->playfield[13]
+                ||Tetrimino_empty !=  game->playfield[14]
+                ||Tetrimino_empty !=  game->playfield[15])
+            {
+                return true;
+            }
+            return false;
     }
+
+    return true; // TODO: Handle this.
+}
+
+TetriminoColor get_next_tetrimino(TetriminoColor bag[])
+{
+    TetriminoColor selection = only_one_remains(bag);
+
+    if (Tetrimino_empty != selection)
+    {
+        reset_bag(bag);
+        return selection;
+    }
+
+    int index = rand() % (TETRIMINO_COUNT - 1);
+
+    while (Tetrimino_empty == bag[index])
+    {
+        index = rand() % (TETRIMINO_COUNT - 1);
+    }
+
+    selection = bag[index];
+    bag[index] = Tetrimino_empty;
+
+    return selection;
+}
+
+void initialize_game(GameData *game)
+{
+    srand(time(NULL));
+    reset_bag(game->randomBag);
+    game->nextTetrimino = make_random_tetrimino(game->randomBag);
+
+    initialize_ui(game);
+    set_preview(game);
+    wait_for_keypress(game);
+    cycle_in_next_tetrimino(game);
 }
 
 Tetrimino make_random_tetrimino(TetriminoColor bag[])
@@ -88,27 +190,12 @@ TetriminoColor only_one_remains(TetriminoColor bag[])
     return selection;
 }
 
-TetriminoColor get_next_tetrimino(TetriminoColor bag[])
+void reset_bag(TetriminoColor bag[])
 {
-    TetriminoColor selection = only_one_remains(bag);
-
-    if (Tetrimino_empty != selection)
+    for (int i = 0; i < TETRIMINO_COUNT; ++i)
     {
-        reset_bag(bag);
-        return selection;
+        bag[i] = (TetriminoColor)(i + 1);
     }
-
-    int index = rand() % (TETRIMINO_COUNT - 1);
-
-    while (Tetrimino_empty == bag[index])
-    {
-        index = rand() % (TETRIMINO_COUNT - 1);
-    }
-
-    selection = bag[index];
-    bag[index] = Tetrimino_empty;
-
-    return selection;
 }
 
 void spawn_tetrimino(GameData *game)
@@ -119,7 +206,6 @@ void spawn_tetrimino(GameData *game)
             // TODO: Should never happen.
             return;
 
-        //   [ ][*][ ][ ]
         case Tetrimino_lightBlue:
             game->currentTetrimino.centroid = LIGHTBLUE_SPAWNPOINT;
             game->playfield[3] = game->currentTetrimino.type;
@@ -128,8 +214,6 @@ void spawn_tetrimino(GameData *game)
             game->playfield[6] = game->currentTetrimino.type;
             return;
 
-        //   [ ]
-        //   [ ][*][ ]
         case Tetrimino_darkBlue:
             game->currentTetrimino.centroid = DARKBLUE_SPAWNPOINT;
             game->playfield[3] = game->currentTetrimino.type;
@@ -138,8 +222,6 @@ void spawn_tetrimino(GameData *game)
             game->playfield[15] = game->currentTetrimino.type;
             return;
 
-        //         [ ]
-        //   [ ][*][ ]
         case Tetrimino_orange:
             game->currentTetrimino.centroid = ORANGE_SPAWNPOINT;
             game->playfield[5] = game->currentTetrimino.type;
@@ -148,8 +230,6 @@ void spawn_tetrimino(GameData *game)
             game->playfield[15] = game->currentTetrimino.type;
             return;
 
-        //   [ ][ ]
-        //   [*][ ]
         case Tetrimino_yellow:
             game->currentTetrimino.centroid = YELLOW_SPAWNPOINT;
             game->playfield[4] = game->currentTetrimino.type;
@@ -158,18 +238,6 @@ void spawn_tetrimino(GameData *game)
             game->playfield[15] = game->currentTetrimino.type;
             return;
 
-        //   [ ][ ]
-        //      [*][ ]
-        case Tetrimino_red:
-            game->currentTetrimino.centroid = RED_SPAWNPOINT;
-            game->playfield[3] = game->currentTetrimino.type;
-            game->playfield[4] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
-            game->playfield[15] = game->currentTetrimino.type;
-            return;
-
-        //      [ ][ ]
-        //   [ ][*]
         case Tetrimino_green:
             game->currentTetrimino.centroid = GREEN_SPAWNPOINT;
             game->playfield[4] = game->currentTetrimino.type;
@@ -178,8 +246,14 @@ void spawn_tetrimino(GameData *game)
             game->playfield[14] = game->currentTetrimino.type;
             return;
 
-        //      [ ]
-        //   [ ][*][ ]
+        case Tetrimino_red:
+            game->currentTetrimino.centroid = RED_SPAWNPOINT;
+            game->playfield[3] = game->currentTetrimino.type;
+            game->playfield[4] = game->currentTetrimino.type;
+            game->playfield[14] = game->currentTetrimino.type;
+            game->playfield[15] = game->currentTetrimino.type;
+            return;
+
         case Tetrimino_magenta:
             game->currentTetrimino.centroid = MAGENTA_SPAWNPOINT;
             game->playfield[4] = game->currentTetrimino.type;
@@ -188,5 +262,16 @@ void spawn_tetrimino(GameData *game)
             game->playfield[15] = game->currentTetrimino.type;
             return;
     }
+}
+
+void wait_for_keypress(GameData *game)
+{
+    mvwprintw(game->ui.playfieldWindow, 8, 4, "Press any key");
+    mvwprintw(game->ui.playfieldWindow, 9, 5, "to begin...");
+    wrefresh(game->ui.playfieldWindow);
+    getch();
+    mvwprintw(game->ui.playfieldWindow, 8, 4, "             ");
+    mvwprintw(game->ui.playfieldWindow, 9, 5, "           ");
+    wrefresh(game->ui.playfieldWindow);
 }
 

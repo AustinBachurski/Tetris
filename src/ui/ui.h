@@ -5,16 +5,17 @@
 
 typedef struct GameData GameData;
 
-typedef struct
+typedef struct GameUI
 {
     WINDOW *playfieldWindow;
     WINDOW *previewWindow;
 } GameUI;
 
-void initialize_ui(GameData *game);
-void set_preview(GameData *game);
 void draw_playfield(GameData *game);
 void exit_game(int const code);
+void initialize_ui(GameData *game);
+void set_preview(GameData *game);
+void show_game_over(GameData *game);
 
 void initialize_colors(void);
 void initialize_game_windows(GameUI *ui);
