@@ -15,7 +15,7 @@ void confirm_bag_was_emptied(bool resultsBag[])
 {
     for (int i = 0; i < TETRIMINO_COUNT; ++i)
     {
-        TEST_ASSERT(true == resultsBag[i]);
+        TEST_ASSERT(resultsBag[i]);
     }
 }
 
@@ -28,7 +28,7 @@ void empty_test_bag(TetriminoColor testBag[], bool resultsBag[])
         result = make_random_tetrimino(testBag);
         int index = ((int)result.type) - 1;
 
-        TEST_ASSERT(false == resultsBag[index]);
+        TEST_ASSERT(!resultsBag[index]);
 
         resultsBag[index] = true;
     }
