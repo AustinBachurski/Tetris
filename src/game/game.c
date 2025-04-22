@@ -8,6 +8,14 @@
 #include <string.h>
 #include <time.h>
 
+int const lightBlueSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 4, 5, 6, };
+int const darkBlueSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 13, 14, 15, };
+int const orangeSpawnIndices[SQUARES_PER_TETRIMINO] = { 5, 13, 14, 15, };
+int const yellowSpawnIndices[SQUARES_PER_TETRIMINO] = { 4, 5, 14, 15 };
+int const greenSpawnIndices[SQUARES_PER_TETRIMINO] = { 4, 5, 13, 14 };
+int const redSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 4, 14, 15 };
+int const magentaSpawnIndices[SQUARES_PER_TETRIMINO] = { 4, 13, 14, 15 };
+
 void play_tetris(void)
 {
     GameData game;
@@ -54,77 +62,28 @@ bool is_game_over(GameData *game)
     {
         case Tetrimino_empty:
             // TODO: Should never happen - how to handle error?
-            return false;
+            return true;
 
         case Tetrimino_lightBlue:
-            if (Tetrimino_empty !=  game->playfield[3]
-                ||Tetrimino_empty !=  game->playfield[4]
-                ||Tetrimino_empty !=  game->playfield[5]
-                ||Tetrimino_empty !=  game->playfield[6])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, lightBlueSpawnIndices);
 
         case Tetrimino_darkBlue:
-            if (Tetrimino_empty !=  game->playfield[3]
-                ||Tetrimino_empty !=  game->playfield[13]
-                ||Tetrimino_empty !=  game->playfield[14]
-                ||Tetrimino_empty !=  game->playfield[15])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, darkBlueSpawnIndices);
 
         case Tetrimino_orange:
-            if (Tetrimino_empty !=  game->playfield[5]
-                ||Tetrimino_empty !=  game->playfield[13]
-                ||Tetrimino_empty !=  game->playfield[14]
-                ||Tetrimino_empty !=  game->playfield[15])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, orangeSpawnIndices);
 
         case Tetrimino_yellow:
-            if (Tetrimino_empty !=  game->playfield[4]
-                ||Tetrimino_empty !=  game->playfield[5]
-                ||Tetrimino_empty !=  game->playfield[14]
-                ||Tetrimino_empty !=  game->playfield[15])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, yellowSpawnIndices);
 
         case Tetrimino_green:
-            if (Tetrimino_empty !=  game->playfield[4]
-                ||Tetrimino_empty !=  game->playfield[5]
-                ||Tetrimino_empty !=  game->playfield[13]
-                ||Tetrimino_empty !=  game->playfield[14])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, greenSpawnIndices);
 
         case Tetrimino_red:
-            if (Tetrimino_empty !=  game->playfield[3]
-                ||Tetrimino_empty !=  game->playfield[4]
-                ||Tetrimino_empty !=  game->playfield[14]
-                ||Tetrimino_empty !=  game->playfield[15])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, redSpawnIndices);
 
         case Tetrimino_magenta:
-            if (Tetrimino_empty !=  game->playfield[4]
-                ||Tetrimino_empty !=  game->playfield[13]
-                ||Tetrimino_empty !=  game->playfield[14]
-                ||Tetrimino_empty !=  game->playfield[15])
-            {
-                return true;
-            }
-            return false;
+            return space_is_occupied(game, magentaSpawnIndices);
     }
 
     return true; // TODO: Handle this.
@@ -155,7 +114,7 @@ TetriminoColor get_next_tetrimino(TetriminoColor bag[])
 
 void initialize_game(GameData *game)
 {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     reset_bag(game->randomBag);
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
 
@@ -190,12 +149,32 @@ TetriminoColor only_one_remains(TetriminoColor bag[])
     return selection;
 }
 
+void place_tetrimino(GameData *game, int const indices[])
+{
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        game->playfield[indices[i]] = game->currentTetrimino.type;
+    }
+}
+
 void reset_bag(TetriminoColor bag[])
 {
     for (int i = 0; i < TETRIMINO_COUNT; ++i)
     {
         bag[i] = (TetriminoColor)(i + 1);
     }
+}
+
+bool space_is_occupied(GameData* game, int const indices[])
+{
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        if (Tetrimino_empty != game->playfield[indices[i]])
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void spawn_tetrimino(GameData *game)
@@ -208,58 +187,37 @@ void spawn_tetrimino(GameData *game)
 
         case Tetrimino_lightBlue:
             game->currentTetrimino.centroid = LIGHTBLUE_SPAWNPOINT;
-            game->playfield[3] = game->currentTetrimino.type;
-            game->playfield[4] = game->currentTetrimino.type;
-            game->playfield[5] = game->currentTetrimino.type;
-            game->playfield[6] = game->currentTetrimino.type;
+            place_tetrimino(game, lightBlueSpawnIndices);
             return;
 
         case Tetrimino_darkBlue:
             game->currentTetrimino.centroid = DARKBLUE_SPAWNPOINT;
-            game->playfield[3] = game->currentTetrimino.type;
-            game->playfield[13] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
-            game->playfield[15] = game->currentTetrimino.type;
+            place_tetrimino(game, darkBlueSpawnIndices);
             return;
 
         case Tetrimino_orange:
             game->currentTetrimino.centroid = ORANGE_SPAWNPOINT;
-            game->playfield[5] = game->currentTetrimino.type;
-            game->playfield[13] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
-            game->playfield[15] = game->currentTetrimino.type;
+            place_tetrimino(game, orangeSpawnIndices);
             return;
 
         case Tetrimino_yellow:
             game->currentTetrimino.centroid = YELLOW_SPAWNPOINT;
-            game->playfield[4] = game->currentTetrimino.type;
-            game->playfield[5] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
-            game->playfield[15] = game->currentTetrimino.type;
+            place_tetrimino(game, yellowSpawnIndices);
             return;
 
         case Tetrimino_green:
             game->currentTetrimino.centroid = GREEN_SPAWNPOINT;
-            game->playfield[4] = game->currentTetrimino.type;
-            game->playfield[5] = game->currentTetrimino.type;
-            game->playfield[13] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
+            place_tetrimino(game, greenSpawnIndices);
             return;
 
         case Tetrimino_red:
             game->currentTetrimino.centroid = RED_SPAWNPOINT;
-            game->playfield[3] = game->currentTetrimino.type;
-            game->playfield[4] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
-            game->playfield[15] = game->currentTetrimino.type;
+            place_tetrimino(game, redSpawnIndices);
             return;
 
         case Tetrimino_magenta:
             game->currentTetrimino.centroid = MAGENTA_SPAWNPOINT;
-            game->playfield[4] = game->currentTetrimino.type;
-            game->playfield[13] = game->currentTetrimino.type;
-            game->playfield[14] = game->currentTetrimino.type;
-            game->playfield[15] = game->currentTetrimino.type;
+            place_tetrimino(game, magentaSpawnIndices);
             return;
     }
 }

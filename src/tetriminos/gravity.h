@@ -8,6 +8,5 @@ void indicies_for_down(Tetrimino *current, int indicies[]);
 [[nodiscard]] bool move_down(GameData *game);
 [[nodiscard]] bool valid_move(TetriminoColor playfield[], int indicies[]);
 
-
 #endif
 

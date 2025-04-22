@@ -27,5 +27,13 @@
 #define RED_SPAWNPOINT 14
 #define MAGENTA_SPAWNPOINT 14
 
+extern int const lightBlueSpawnIndices[SQUARES_PER_TETRIMINO];
+extern int const darkBlueSpawnIndices[SQUARES_PER_TETRIMINO];
+extern int const orangeSpawnIndices[SQUARES_PER_TETRIMINO];
+extern int const yellowSpawnIndices[SQUARES_PER_TETRIMINO];
+extern int const greenSpawnIndices[SQUARES_PER_TETRIMINO];
+extern int const redSpawnIndices[SQUARES_PER_TETRIMINO];
+extern int const magentaSpawnIndices[SQUARES_PER_TETRIMINO];
+
 #endif
 

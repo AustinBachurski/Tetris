@@ -3,7 +3,6 @@
 #include "gravity.h"
 #include "../game/gamesettings.h"
 
-
 void indicies_for_down(Tetrimino *current, int indicies[])
 {
     switch (current->type)

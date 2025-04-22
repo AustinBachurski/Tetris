@@ -8,7 +8,6 @@
 #include <signal.h>
 #include <stdlib.h>
 
-
 static void cleanup_and_exit(int code)
 {
     endwin();
@@ -144,11 +143,11 @@ void show_game_over(GameData *game)
     mvwprintw(game->ui.previewWindow, 3, 1, "   (y/n)?");
     wrefresh(game->ui.previewWindow);
 
-    char choice = getch();
+    char choice = (char)getch();
 
     while (choice != 'y' && choice != 'n')
     {
-        choice = getch();
+        choice = (char)getch();
     }
 
     if ('n' == choice)

@@ -21,6 +21,5 @@ void initialize_colors(void);
 void initialize_game_windows(GameUI *ui);
 void clear_preview(WINDOW *previewWindow);
 
-
 #endif
 

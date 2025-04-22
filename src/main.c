@@ -1,6 +1,5 @@
 #include "game/game.h"
 
-
 int main(void)
 {
     play_tetris();

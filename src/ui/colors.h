@@ -1,8 +1,6 @@
 #ifndef TETRIS_UI_COLORS_H
 #define TETRIS_UI_COLORS_H
 
-#include <curses.h>
-
 #define CUSTOM_COLOR_LIGHTBLUE 51
 #define CUSTOM_COLOR_DARKBLUE  57
 #define CUSTOM_COLOR_ORANGE    208
