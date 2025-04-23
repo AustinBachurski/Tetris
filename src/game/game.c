@@ -8,6 +8,25 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef UNIT_TEST
+    #define INTERNAL /* as nothing for unit testing */
+#else
+    #define INTERNAL static
+#endif
+
+INTERNAL void clear_playfield(GameData *game);
+static void cycle_in_next_tetrimino(GameData *game);
+[[nodiscard]] INTERNAL bool is_game_over(GameData *game);
+static TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
+static void initialize_game(GameData *game);
+INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
+static TetriminoColor only_one_remains(TetriminoColor bag[]);
+static void place_tetrimino(GameData *game, int const indices[]);
+INTERNAL void reset_bag(TetriminoColor bag[]);
+[[nodiscard]] static bool space_is_occupied(GameData* game, int const indices[]);
+INTERNAL void spawn_tetrimino(GameData *game);
+static void wait_for_keypress(GameData *game);
+
 int const lightBlueSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 4, 5, 6, };
 int const darkBlueSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 13, 14, 15, };
 int const orangeSpawnIndices[SQUARES_PER_TETRIMINO] = { 5, 13, 14, 15, };
@@ -35,7 +54,8 @@ void play_tetris(void)
             }
             else
             {
-                show_game_over(&game);
+                show_game_over(&game);  // May exit application.
+                initialize_game(&game);
             }
         }
     }
@@ -43,12 +63,12 @@ void play_tetris(void)
     exit_game(0);
 }
 
-void clear_playfield(GameData *game)
+INTERNAL void clear_playfield(GameData *game)
 {
     memset(game->playfield, 0, PLAYFIELD_SIZE * sizeof(TetriminoColor));
 }
 
-void cycle_in_next_tetrimino(GameData *game)
+static void cycle_in_next_tetrimino(GameData *game)
 {
     game->currentTetrimino = game->nextTetrimino;
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
@@ -56,7 +76,7 @@ void cycle_in_next_tetrimino(GameData *game)
     set_preview(game);
 }
 
-bool is_game_over(GameData *game)
+INTERNAL bool is_game_over(GameData *game)
 {
     switch (game->nextTetrimino.type)
     {
@@ -89,7 +109,7 @@ bool is_game_over(GameData *game)
     return true; // TODO: Handle this.
 }
 
-TetriminoColor get_next_tetrimino(TetriminoColor bag[])
+static TetriminoColor get_next_tetrimino(TetriminoColor bag[])
 {
     TetriminoColor selection = only_one_remains(bag);
 
@@ -112,24 +132,25 @@ TetriminoColor get_next_tetrimino(TetriminoColor bag[])
     return selection;
 }
 
-void initialize_game(GameData *game)
+static void initialize_game(GameData *game)
 {
     srand((unsigned int)time(NULL));
     reset_bag(game->randomBag);
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
 
+    clear_playfield(game);
     initialize_ui(game);
     set_preview(game);
     wait_for_keypress(game);
     cycle_in_next_tetrimino(game);
 }
 
-Tetrimino make_random_tetrimino(TetriminoColor bag[])
+INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
 {
     return (Tetrimino){ 0, get_next_tetrimino(bag), Facing_up };
 }
 
-TetriminoColor only_one_remains(TetriminoColor bag[])
+static TetriminoColor only_one_remains(TetriminoColor bag[])
 {
     TetriminoColor selection = Tetrimino_empty;
 
@@ -149,7 +170,7 @@ TetriminoColor only_one_remains(TetriminoColor bag[])
     return selection;
 }
 
-void place_tetrimino(GameData *game, int const indices[])
+static void place_tetrimino(GameData *game, int const indices[])
 {
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
@@ -157,7 +178,7 @@ void place_tetrimino(GameData *game, int const indices[])
     }
 }
 
-void reset_bag(TetriminoColor bag[])
+INTERNAL void reset_bag(TetriminoColor bag[])
 {
     for (int i = 0; i < TETRIMINO_COUNT; ++i)
     {
@@ -165,7 +186,7 @@ void reset_bag(TetriminoColor bag[])
     }
 }
 
-bool space_is_occupied(GameData* game, int const indices[])
+static bool space_is_occupied(GameData* game, int const indices[])
 {
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
@@ -177,7 +198,7 @@ bool space_is_occupied(GameData* game, int const indices[])
     return false;
 }
 
-void spawn_tetrimino(GameData *game)
+INTERNAL void spawn_tetrimino(GameData *game)
 {
     switch (game->currentTetrimino.type)
     {
@@ -222,7 +243,7 @@ void spawn_tetrimino(GameData *game)
     }
 }
 
-void wait_for_keypress(GameData *game)
+static void wait_for_keypress(GameData *game)
 {
     mvwprintw(game->ui.playfieldWindow, 8, 4, "Press any key");
     mvwprintw(game->ui.playfieldWindow, 9, 5, "to begin...");

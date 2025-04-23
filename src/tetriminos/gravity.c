@@ -1,9 +1,38 @@
-#include "tetrimino.h"
-
 #include "gravity.h"
-#include "../game/gamesettings.h"
 
-void indicies_for_down(Tetrimino *current, int indicies[])
+#include "tetrimino.h"
+#include "../game/gamesettings.h"
+#include "../game/game.h"
+
+[[nodiscard]] static bool is_self(int indicies[], int current);
+[[nodiscard]] static bool valid_move(TetriminoColor playfield[], int indicies[]);
+static void indicies_for_down(Tetrimino *current, int indicies[]);
+
+bool move_down(GameData *game)
+{
+    int indicies[SQUARES_PER_TETRIMINO];
+    indicies_for_down(&game->currentTetrimino, indicies);
+
+    if (!valid_move(game->playfield, indicies))
+    {
+        return false;
+    }
+
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        game->playfield[indicies[i] - PLAYFIELD_COLUMNS] = Tetrimino_empty;
+    }
+
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        game->playfield[indicies[i]] = game->currentTetrimino.type;
+    }
+
+    game->currentTetrimino.centroid += PLAYFIELD_COLUMNS;
+    return true;
+}
+
+static void indicies_for_down(Tetrimino *current, int indicies[])
 {
     switch (current->type)
     {
@@ -62,7 +91,7 @@ void indicies_for_down(Tetrimino *current, int indicies[])
     }
 }
 
-bool is_self(int indicies[], int current)
+static bool is_self(int indicies[], int current)
 {
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
@@ -75,31 +104,7 @@ bool is_self(int indicies[], int current)
     return false;
 }
 
-bool move_down(GameData *game)
-{
-    int indicies[SQUARES_PER_TETRIMINO];
-    indicies_for_down(&game->currentTetrimino, indicies);
-
-    if (!valid_move(game->playfield, indicies))
-    {
-        return false;
-    }
-
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        game->playfield[indicies[i] - PLAYFIELD_COLUMNS] = Tetrimino_empty;
-    }
-
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        game->playfield[indicies[i]] = game->currentTetrimino.type;
-    }
-
-    game->currentTetrimino.centroid += PLAYFIELD_COLUMNS;
-    return true;
-}
-
-bool valid_move(TetriminoColor playfield[], int indicies[])
+static bool valid_move(TetriminoColor playfield[], int indicies[])
 {
     int current = 0;
 

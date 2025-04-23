@@ -17,9 +17,5 @@ void initialize_ui(GameData *game);
 void set_preview(GameData *game);
 void show_game_over(GameData *game);
 
-void initialize_colors(void);
-void initialize_game_windows(GameUI *ui);
-void clear_preview(WINDOW *previewWindow);
-
 #endif
 

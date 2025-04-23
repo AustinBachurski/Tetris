@@ -16,18 +16,5 @@ typedef struct GameData
 
 void play_tetris(void);
 
-void clear_playfield(GameData *game);
-void cycle_in_next_tetrimino(GameData *game);
-[[nodiscard]] bool is_game_over(GameData *game);
-TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
-void initialize_game(GameData *game);
-Tetrimino make_random_tetrimino(TetriminoColor bag[]);
-TetriminoColor only_one_remains(TetriminoColor bag[]);
-void place_tetrimino(GameData *game, int const indices[]);
-void reset_bag(TetriminoColor bag[]);
-[[nodiscard]] bool space_is_occupied(GameData* game, int const indices[]);
-void spawn_tetrimino(GameData *game);
-void wait_for_keypress(GameData *game);
-
 #endif
 

@@ -3,6 +3,7 @@
 #include "randombag/randombag.h"
 #include "playfield/spawntetrimino.h"
 #include "playfield/gameover.h"
+#include "tetrimino/movedown.h"
 
 void setUp(void)
 { }
@@ -24,8 +25,13 @@ int main(void)
     RUN_TEST(spawn_red_tetrimino);
     RUN_TEST(spawn_magenta_tetrimino);
 
-    // TODO: RUN_TEST(move_tetrimino_down);
-    // TODO: RUN_TEST(move_is_valid);
+    RUN_TEST(move_light_blue_tetrimino_down);
+    RUN_TEST(move_dark_blue_tetrimino_down);
+    RUN_TEST(move_orange_tetrimino_down);
+    RUN_TEST(move_yellow_tetrimino_down);
+    RUN_TEST(move_green_tetrimino_down);
+    RUN_TEST(move_red_tetrimino_down);
+    RUN_TEST(move_magenta_tetrimino_down);
 
     RUN_TEST(game_over);
 

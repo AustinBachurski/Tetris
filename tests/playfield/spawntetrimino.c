@@ -1,22 +1,15 @@
 #include "spawntetrimino.h"
 
-#include "../game/game.h"
-#include "../game/gamesettings.h"
-#include "../tetriminos/tetrimino.h"
+#include "../../src/game/gamesettings.h"
+#include "../../src/tetriminos/tetrimino.h"
+#include "../../src/game/game.h"
+
+#include "../utilities/utilities.h"
 
 #include "unity.h"
 
-bool correct_spaces_occupied(GameData* game, int const indices[])
-{
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        if (Tetrimino_empty == game->playfield[indices[i]])
-        {
-            return false;
-        }
-    }
-    return true;
-}
+extern void clear_playfield(GameData *game);
+extern void spawn_tetrimino(GameData *game);
 
 void spawn_light_blue_tetrimino(void)
 {

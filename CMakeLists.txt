@@ -28,13 +28,22 @@ target_link_libraries(tetris ${CURSES_LIBRARIES})
 add_executable(tetris_tests tests/tests.c
                             tests/unity/unity.c
                             tests/randombag/randombag.c
+                            tests/playfield/spawntetrimino.c
+                            tests/playfield/gameover.c
+                            tests/tetrimino/movedown.c
+                            tests/utilities/utilities.c
                             src/game/game.c
                             src/tetriminos/gravity.c
                             src/ui/ui.c
 )
 
+target_compile_definitions(tetris_tests PRIVATE UNIT_TEST)
+
 target_include_directories(tetris_tests PRIVATE tests/unity
                                                 tests/randombag
+                                                tests/playfield
+                                                tests/tetrimino
+                                                tests/utilities
                                                 src/game
                                                 src/tetriminos
                                                 src/ui

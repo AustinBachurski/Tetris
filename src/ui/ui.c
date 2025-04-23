@@ -8,11 +8,13 @@
 #include <signal.h>
 #include <stdlib.h>
 
-static void cleanup_and_exit(int code)
-{
-    endwin();
-    exit(code);
-}
+static void cleanup_and_exit(int code);
+static void clear_preview(WINDOW *previewWindow);
+static void initialize_colors(void);
+static void initialize_game_windows(GameUI *ui);
+
+extern void clear_playfield(GameData *game);
+extern void initialize_game(GameData *game);
 
 void draw_playfield(GameData *game)
 {
@@ -63,7 +65,6 @@ void initialize_ui(GameData *game)
     
     initialize_colors();
     initialize_game_windows(&game->ui);
-    clear_playfield(game);
 }
 
 void set_preview(GameData *game)
@@ -154,11 +155,23 @@ void show_game_over(GameData *game)
     {
         exit_game(0);
     }
-
-    initialize_game(game);
 }
 
-void initialize_colors(void)
+static void cleanup_and_exit(int code)
+{
+    endwin();
+    exit(code);
+}
+
+static void clear_preview(WINDOW *previewWindow)
+{
+    wattron(previewWindow, COLOR_PAIR(Tetrimino_empty));
+    mvwprintw(previewWindow, 2, 1, "            ");
+    mvwprintw(previewWindow, 3, 1, "            ");
+    wattroff(previewWindow, COLOR_PAIR(Tetrimino_empty));
+}
+
+static void initialize_colors(void)
 {
     init_pair(Tetrimino_empty,     COLOR_BLACK, COLOR_BLACK);
     init_pair(Tetrimino_lightBlue, COLOR_BLACK, CUSTOM_COLOR_LIGHTBLUE);
@@ -170,7 +183,7 @@ void initialize_colors(void)
     init_pair(Tetrimino_magenta,   COLOR_BLACK, CUSTOM_COLOR_MAGENTA);
 }
 
-void initialize_game_windows(GameUI *ui)
+static void initialize_game_windows(GameUI *ui)
 {
     ui->playfieldWindow = newwin(PLAYFIELD_ROWS + WINDOW_BORDER,
                            PLAYFIELD_WINDOW_COLUMNS + WINDOW_BORDER,
@@ -186,13 +199,5 @@ void initialize_game_windows(GameUI *ui)
     mvwprintw(ui->previewWindow, 0, 5, "Next");
     
     refresh();
-}
-
-void clear_preview(WINDOW *previewWindow)
-{
-    wattron(previewWindow, COLOR_PAIR(Tetrimino_empty));
-    mvwprintw(previewWindow, 2, 1, "            ");
-    mvwprintw(previewWindow, 3, 1, "            ");
-    wattroff(previewWindow, COLOR_PAIR(Tetrimino_empty));
 }
 

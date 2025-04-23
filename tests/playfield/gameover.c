@@ -1,12 +1,41 @@
 #include "gameover.h"
 
-#include "../game/game.h"
-#include "../game/gamesettings.h"
-#include "../tetriminos/tetrimino.h"
+#include "../../src/game/gamesettings.h"
+#include "../../src/tetriminos/tetrimino.h"
+#include "../../src/game/game.h"
 
 #include "unity.h"
 
-int index_of(int index, TetriminoColor next)
+extern void clear_playfield(GameData *game);
+[[nodiscard]] extern bool is_game_over(GameData *game);
+
+static int index_of(int const index, TetriminoColor const next);
+
+void game_over(void)
+{
+    GameData game;
+
+    for (int tetrimino = 0; tetrimino < TETRIMINO_COUNT; ++tetrimino)
+    {
+        game.nextTetrimino =
+         (Tetrimino){ 0, (TetriminoColor)(tetrimino + 1), Facing_up };
+
+        for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+        {
+            clear_playfield(&game);
+            TEST_ASSERT_MESSAGE(!is_game_over(&game),
+                                "Game over triggered with empty board.");
+
+            game.playfield[index_of(i, game.nextTetrimino.type)]
+                = (TetriminoColor)(tetrimino + 1);
+
+            TEST_ASSERT_MESSAGE(is_game_over(&game),
+                                "Game over didn't trigger when it should've.");
+        }
+    }
+}
+
+static int index_of(int const index, TetriminoColor const next)
 {
     switch (next)
     {
@@ -37,29 +66,5 @@ int index_of(int index, TetriminoColor next)
     }
     TEST_ASSERT_MESSAGE(false, "Received an invalid enum value.");
     return 1;
-}
-
-void game_over(void)
-{
-    GameData game;
-
-    for (int tetrimino = 0; tetrimino < TETRIMINO_COUNT; ++tetrimino)
-    {
-        game.nextTetrimino =
-         (Tetrimino){ 0, (TetriminoColor)(tetrimino + 1), Facing_up };
-
-        for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-        {
-            clear_playfield(&game);
-            TEST_ASSERT_MESSAGE(!is_game_over(&game),
-                                "Game over triggered with empty board.");
-
-            game.playfield[index_of(i, game.nextTetrimino.type)]
-                = (TetriminoColor)(tetrimino + 1);
-
-            TEST_ASSERT_MESSAGE(is_game_over(&game),
-                                "Game over didn't trigger when it should've.");
-        }
-    }
 }
 
