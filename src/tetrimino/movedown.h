@@ -1,5 +1,5 @@
-#ifndef TETRIS_GRAVITY_H
-#define TETRIS_GRAVITY_H
+#ifndef TETRIS_MOVE_DOWN_H
+#define TETRIS_MOVE_DOWN_H
 
 #include "../game/game.h"
 

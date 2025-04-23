@@ -1,8 +1,8 @@
 #include "spawntetrimino.h"
 
-#include "../../src/game/gamesettings.h"
-#include "../../src/tetriminos/tetrimino.h"
 #include "../../src/game/game.h"
+#include "../../src/game/gamesettings.h"
+#include "../../src/tetrimino/tetrimino.h"
 
 #include "../utilities/utilities.h"
 

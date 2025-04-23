@@ -3,7 +3,7 @@
 
 #include "gamesettings.h"
 #include "../ui/ui.h"
-#include "../tetriminos/tetrimino.h"
+#include "../tetrimino/tetrimino.h"
 
 typedef struct GameData
 {

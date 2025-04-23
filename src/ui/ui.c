@@ -1,9 +1,9 @@
 #include "ui.h"
 
 #include "colors.h"
-#include "../game/gamesettings.h"
 #include "../game/game.h"
-#include "../tetriminos/tetrimino.h"
+#include "../game/gamesettings.h"
+#include "../tetrimino/tetrimino.h"
 
 #include <signal.h>
 #include <stdlib.h>

@@ -1,10 +1,10 @@
 #include "movedown.h"
 
 #include "../../src/game/game.h"
+#include "../../src/game/gamesettings.h"
 
 #include "../utilities/utilities.h"
 
-#include "gamesettings.h"
 #include "unity.h"
 
 // Light blue takes up one row and spawns in row zero.

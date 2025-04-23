@@ -1,7 +1,7 @@
 #include "randombag.h"
 
 #include "../../src/game/gamesettings.h"
-#include "../../src/tetriminos/tetrimino.h"
+#include "../../src/tetrimino/tetrimino.h"
 
 #include "unity.h"
 

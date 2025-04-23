@@ -1,9 +1,10 @@
 #include "unity/unity.h"
 
-#include "randombag/randombag.h"
-#include "playfield/spawntetrimino.h"
 #include "playfield/gameover.h"
 #include "tetrimino/movedown.h"
+#include "tetrimino/moveleft.h"
+#include "randombag/randombag.h"
+#include "playfield/spawntetrimino.h"
 
 void setUp(void)
 { }
@@ -32,6 +33,8 @@ int main(void)
     RUN_TEST(move_green_tetrimino_down);
     RUN_TEST(move_red_tetrimino_down);
     RUN_TEST(move_magenta_tetrimino_down);
+
+    RUN_TEST(move_light_blue_tetrimino_left);
 
     RUN_TEST(game_over);
 

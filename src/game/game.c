@@ -2,7 +2,8 @@
 
 #include "gamesettings.h"
 #include "../ui/ui.h"
-#include "../tetriminos/gravity.h"
+#include "../tetrimino/movement.h"
+#include "../tetrimino/tetrimino.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -44,8 +45,10 @@ void play_tetris(void)
     {
         draw_playfield(&game);
 
-        //getch();
+        const char choice = (char)getch();
+        move_tetrimino(&game, choice);
 
+        /*
         if (!move_down(&game))
         {
             if (!is_game_over(&game))
@@ -58,6 +61,12 @@ void play_tetris(void)
                 initialize_game(&game);
             }
         }
+    */
+    }
+
+    if (is_game_over(&game))
+    {
+        exit_game(1);
     }
 
     exit_game(0);
