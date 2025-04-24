@@ -71,7 +71,7 @@ static void indices_for_left(Tetrimino *current, int indices[])
 
         case Tetrimino_green:
             indices[0] = current->centroid - 1;
-            indices[1] = current->centroid;
+            indices[1] = current->centroid - 2;
             indices[2] = current->centroid - PLAYFIELD_COLUMNS - 1;
             indices[3] = current->centroid - PLAYFIELD_COLUMNS;
             return;

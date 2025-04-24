@@ -1,8 +1,9 @@
 #include "unity/unity.h"
 
 #include "playfield/gameover.h"
-#include "tetrimino/movedown.h"
+#include "tetrimino/gravity.h"
 #include "tetrimino/moveleft.h"
+#include "tetrimino/moveright.h"
 #include "randombag/randombag.h"
 #include "playfield/spawntetrimino.h"
 
@@ -26,15 +27,16 @@ int main(void)
     RUN_TEST(spawn_red_tetrimino);
     RUN_TEST(spawn_magenta_tetrimino);
 
-    RUN_TEST(move_light_blue_tetrimino_down);
-    RUN_TEST(move_dark_blue_tetrimino_down);
-    RUN_TEST(move_orange_tetrimino_down);
-    RUN_TEST(move_yellow_tetrimino_down);
-    RUN_TEST(move_green_tetrimino_down);
-    RUN_TEST(move_red_tetrimino_down);
-    RUN_TEST(move_magenta_tetrimino_down);
+    RUN_TEST(light_blue_tetrimino_gravity_down);
+    RUN_TEST(dark_blue_tetrimino_gravity_down);
+    RUN_TEST(orange_tetrimino_gravity_down);
+    RUN_TEST(yellow_tetrimino_gravity_down);
+    RUN_TEST(green_tetrimino_gravity_down);
+    RUN_TEST(red_tetrimino_gravity_down);
+    RUN_TEST(magenta_tetrimino_gravity_down);
 
     RUN_TEST(move_light_blue_tetrimino_left);
+    RUN_TEST(move_light_blue_tetrimino_right);
 
     RUN_TEST(game_over);
 

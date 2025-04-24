@@ -1,11 +1,10 @@
-#include "movedown.h"
+#include "gravity.h"
 
 #include "../../src/game/game.h"
 #include "../../src/game/gamesettings.h"
 
 #include "../utilities/utilities.h"
-
-#include "unity.h"
+#include "../unity/unity.h"
 
 // Light blue takes up one row and spawns in row zero.
 #define SINGLE_ROW_TETRIMINO_PLAYFIELD_SIZE (PLAYFIELD_ROWS - 1)
@@ -15,7 +14,7 @@
 
 extern void clear_playfield(GameData *game);
 extern void spawn_tetrimino(GameData *game);
-[[nodiscard]] extern bool move_down(GameData *game);
+[[nodiscard]] extern bool gravity_down(GameData *game);
 
 static int lightBlueMovedIndices[SQUARES_PER_TETRIMINO] = { 13, 14, 15, 16, };
 static int darkBlueMovedIndices[SQUARES_PER_TETRIMINO] = { 13, 23, 24, 25, };
@@ -29,9 +28,9 @@ static char const *openSucceed = "Space is open, move should succeed.";
 static char const *incorrectLocation = "Tetrimino was not in correct location.";
 static char const *hitBottom = "Bottom of playfield, move should fail.";
 static char const *newDrop = "New drop, move should succeed.";
-static char const *occupiedSpace = "Space is now occupied, move_down should fail.";
+static char const *occupiedSpace = "Space is now occupied, gravity_down should fail.";
 
-void move_light_blue_tetrimino_down(void)
+void light_blue_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -40,25 +39,25 @@ void move_light_blue_tetrimino_down(void)
 
     for (int i = 0; i < SINGLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, lightBlueMovedIndices),
             incorrectLocation);
 
-        move_indices_down(lightBlueMovedIndices);
+        shift_indices_down(lightBlueMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 
-void move_dark_blue_tetrimino_down(void)
+void dark_blue_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -67,25 +66,25 @@ void move_dark_blue_tetrimino_down(void)
 
     for (int i = 0; i < DOUBLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, darkBlueMovedIndices),
             incorrectLocation);
 
-        move_indices_down(darkBlueMovedIndices);
+        shift_indices_down(darkBlueMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 
-void move_orange_tetrimino_down(void)
+void orange_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -94,25 +93,25 @@ void move_orange_tetrimino_down(void)
 
     for (int i = 0; i < DOUBLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, orangeMovedIndices),
             incorrectLocation);
 
-        move_indices_down(orangeMovedIndices);
+        shift_indices_down(orangeMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 
-void move_yellow_tetrimino_down(void)
+void yellow_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -121,25 +120,25 @@ void move_yellow_tetrimino_down(void)
 
     for (int i = 0; i < DOUBLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, yellowMovedIndices),
             incorrectLocation);
 
-        move_indices_down(yellowMovedIndices);
+        shift_indices_down(yellowMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 
-void move_green_tetrimino_down(void)
+void green_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -148,25 +147,25 @@ void move_green_tetrimino_down(void)
 
     for (int i = 0; i < DOUBLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, greenMovedIndices),
             incorrectLocation);
 
-        move_indices_down(greenMovedIndices);
+        shift_indices_down(greenMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 
-void move_red_tetrimino_down(void)
+void red_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -175,25 +174,25 @@ void move_red_tetrimino_down(void)
 
     for (int i = 0; i < DOUBLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, redMovedIndices),
             incorrectLocation);
 
-        move_indices_down(redMovedIndices);
+        shift_indices_down(redMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 
-void move_magenta_tetrimino_down(void)
+void magenta_tetrimino_gravity_down(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -202,21 +201,21 @@ void move_magenta_tetrimino_down(void)
 
     for (int i = 0; i < DOUBLE_ROW_TETRIMINO_PLAYFIELD_SIZE; ++i)
     {
-        TEST_ASSERT_MESSAGE(move_down(&game), openSucceed);
+        TEST_ASSERT_MESSAGE(gravity_down(&game), openSucceed);
 
         TEST_ASSERT_MESSAGE(
             correct_spaces_occupied(&game, magentaMovedIndices),
             incorrectLocation);
 
-        move_indices_down(magentaMovedIndices);
+        shift_indices_down(magentaMovedIndices);
     }
 
-    TEST_ASSERT_MESSAGE(!move_down(&game), hitBottom);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), hitBottom);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(move_down(&game), newDrop);
+    TEST_ASSERT_MESSAGE(gravity_down(&game), newDrop);
 
     spawn_tetrimino(&game);
-    TEST_ASSERT_MESSAGE(!move_down(&game), occupiedSpace);
+    TEST_ASSERT_MESSAGE(!gravity_down(&game), occupiedSpace);
 }
 

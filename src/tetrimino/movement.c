@@ -16,6 +16,9 @@ void move_tetrimino(GameData *game, char const direction)
             move_tetrimino_right(game);
             break;
 
+        case 's':
+            return;
+
         // TODO: Rotate clockwise.
         // TODO: Rotate counter clockwise.
         // TODO: Move down.

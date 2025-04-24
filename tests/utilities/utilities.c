@@ -12,7 +12,7 @@
     return true;
 }
 
-void move_indices_down(int indices[])
+void shift_indices_down(int indices[])
 {
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {

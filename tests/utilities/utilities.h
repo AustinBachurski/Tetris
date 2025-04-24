@@ -4,7 +4,7 @@
 #include "../../src/game/game.h"
 
 [[nodiscard]] bool correct_spaces_occupied(GameData* game, int const indices[]);
-void move_indices_down(int indices[]);
+void shift_indices_down(int indices[]);
 
 #endif
 

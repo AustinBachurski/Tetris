@@ -1,8 +1,8 @@
-#include "moveleft.h"
+#include "moveright.h"
 
 #include "../../src/game/game.h"
 #include "../../src/game/gamesettings.h"
-#include "../../src/tetrimino/moveleft.h"
+#include "../../src/tetrimino/moveright.h"
 
 #include "../utilities/utilities.h"
 #include "../unity/unity.h"
@@ -10,7 +10,7 @@
 extern void clear_playfield(GameData *game);
 extern void spawn_tetrimino(GameData *game);
 
-static int lightBlueMovedIndices[SQUARES_PER_TETRIMINO] = { 2, 3, 4, 5, };
+static int lightBlueMovedIndices[SQUARES_PER_TETRIMINO] = { 4, 5, 6, 7, };
 /*
 static int darkBlueMovedIndices[SQUARES_PER_TETRIMINO] = { 13, 23, 24, 25, };
 static int orangeMovedIndices[SQUARES_PER_TETRIMINO] = { 15, 23, 24, 25, };
@@ -26,7 +26,7 @@ static char const *occupiedSpace = "Space is now occupied, move_down should fail
 */
 static char const *incorrectLocation = "Tetrimino was not in correct location.";
 
-void move_light_blue_tetrimino_left(void)
+void move_light_blue_tetrimino_right(void)
 {
     GameData game;
     clear_playfield(&game);
@@ -34,9 +34,9 @@ void move_light_blue_tetrimino_left(void)
     spawn_tetrimino(&game);
 
     TEST_ASSERT_MESSAGE(!correct_spaces_occupied(&game, lightBlueMovedIndices),
-                        "Tetrimino already at move left location prior to move.");
+                        "Tetrimino already at move right location prior to move.");
 
-    move_tetrimino_left(&game);
+    move_tetrimino_right(&game);
 
     TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, lightBlueMovedIndices),
                         incorrectLocation);

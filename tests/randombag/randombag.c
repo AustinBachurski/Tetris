@@ -3,7 +3,7 @@
 #include "../../src/game/gamesettings.h"
 #include "../../src/tetrimino/tetrimino.h"
 
-#include "unity.h"
+#include "../unity/unity.h"
 
 #include <stdbool.h>
 #include <stdlib.h>

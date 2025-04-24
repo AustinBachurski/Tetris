@@ -6,7 +6,7 @@
 
 #include "../utilities/utilities.h"
 
-#include "unity.h"
+#include "../unity/unity.h"
 
 extern void clear_playfield(GameData *game);
 extern void spawn_tetrimino(GameData *game);

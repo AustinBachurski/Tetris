@@ -11,9 +11,9 @@ find_package(Curses REQUIRED)
 
 add_executable(tetris src/main.c
                       src/game/game.c
-                      src/tetrimino/movedown.c
-                      src/tetrimino/moveleft.c
+                      src/tetrimino/gravity.c
                       src/tetrimino/movement.c
+                      src/tetrimino/moveleft.c
                       src/tetrimino/moveright.c
                       src/tetrimino/validation.c
                       src/ui/ui.c
@@ -34,15 +34,15 @@ add_executable(tetris_tests tests/tests.c
                             tests/randombag/randombag.c
                             tests/playfield/spawntetrimino.c
                             tests/playfield/gameover.c
-                            tests/tetrimino/movedown.c
+                            tests/tetrimino/gravity.c
                             tests/tetrimino/moveleft.c
-                            #tests/tetrimino/moveright.c
+                            tests/tetrimino/moveright.c
                             tests/utilities/utilities.c
                             src/game/game.c
                             src/ui/ui.c
-                            src/tetrimino/movedown.c
-                            src/tetrimino/moveleft.c
+                            src/tetrimino/gravity.c
                             src/tetrimino/movement.c
+                            src/tetrimino/moveleft.c
                             src/tetrimino/moveright.c
                             src/tetrimino/validation.c
 )

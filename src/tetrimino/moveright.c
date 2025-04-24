@@ -63,8 +63,8 @@ static void indices_for_right(Tetrimino *current, int indices[])
         case Tetrimino_yellow:
             indices[0] = current->centroid + 1;
             indices[1] = current->centroid - PLAYFIELD_COLUMNS + 1;
-            indices[2] = current->centroid;
-            indices[3] = current->centroid - PLAYFIELD_COLUMNS;
+            indices[2] = current->centroid + 2;
+            indices[3] = current->centroid - PLAYFIELD_COLUMNS + 2;
             return;
 
         case Tetrimino_green:

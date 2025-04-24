@@ -4,7 +4,7 @@
 #include "../../src/game/gamesettings.h"
 #include "../../src/tetrimino/tetrimino.h"
 
-#include "unity.h"
+#include "../unity/unity.h"
 
 extern void clear_playfield(GameData *game);
 [[nodiscard]] extern bool is_game_over(GameData *game);

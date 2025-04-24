@@ -1,17 +1,17 @@
-#include "movedown.h"
+#include "gravity.h"
 
 #include "tetrimino.h"
 #include "validation.h"
 #include "../game/gamesettings.h"
 #include "../game/game.h"
 
-static void indices_for_down(Tetrimino *current, int indices[]);
+static void indices_for_gravity(Tetrimino *current, int indices[]);
 static bool is_self(int indices[], int current);
 
-bool move_down(GameData *game)
+bool gravity_down(GameData *game)
 {
     int indices[SQUARES_PER_TETRIMINO];
-    indices_for_down(&game->currentTetrimino, indices);
+    indices_for_gravity(&game->currentTetrimino, indices);
 
     if (!valid_move(game->playfield, indices, is_self))
     {
@@ -34,7 +34,7 @@ bool move_down(GameData *game)
     return true;
 }
 
-static void indices_for_down(Tetrimino *current, int indices[])
+static void indices_for_gravity(Tetrimino *current, int indices[])
 {
     switch (current->type)
     {
