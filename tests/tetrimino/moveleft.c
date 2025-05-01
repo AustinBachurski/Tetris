@@ -30,7 +30,7 @@ void move_light_blue_tetrimino_left(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_lightBlue, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_lightBlue, North };
     spawn_tetrimino(&game);
 
     TEST_ASSERT_MESSAGE(!correct_spaces_occupied(&game, lightBlueMovedIndices),

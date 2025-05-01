@@ -15,7 +15,7 @@ void spawn_light_blue_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_lightBlue, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_lightBlue, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != LIGHTBLUE_SPAWNPOINT,
                         "Light blue centroid set prior to spawn.");
@@ -34,7 +34,7 @@ void spawn_dark_blue_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_darkBlue, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_darkBlue, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != DARKBLUE_SPAWNPOINT,
                         "Dark blue centroid set prior to spawn.");
@@ -53,7 +53,7 @@ void spawn_orange_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_orange, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_orange, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != ORANGE_SPAWNPOINT,
                         "Orange centroid set prior to spawn.");
@@ -72,7 +72,7 @@ void spawn_yellow_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_yellow, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_yellow, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != YELLOW_SPAWNPOINT,
                         "Yellow centroid set prior to spawn.");
@@ -91,7 +91,7 @@ void spawn_green_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_green, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_green, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != GREEN_SPAWNPOINT,
                         "Green centroid set prior to spawn.");
@@ -110,7 +110,7 @@ void spawn_red_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_red, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_red, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != RED_SPAWNPOINT,
                         "Red centroid set prior to spawn.");
@@ -129,7 +129,7 @@ void spawn_magenta_tetrimino(void)
 {
     GameData game;
     clear_playfield(&game);
-    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_magenta, Facing_up };
+    game.currentTetrimino = (Tetrimino){ 0, Tetrimino_magenta, North };
 
     TEST_ASSERT_MESSAGE(game.currentTetrimino.centroid != MAGENTA_SPAWNPOINT,
                         "Magenta centroid set prior to spawn.");

@@ -155,7 +155,7 @@ static void initialize_game(GameData *game)
 
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
 {
-    return (Tetrimino){ 0, get_next_tetrimino(bag), Facing_up };
+    return (Tetrimino){ 0, get_next_tetrimino(bag), North };
 }
 
 static TetriminoColor only_one_remains(TetriminoColor bag[])

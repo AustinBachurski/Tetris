@@ -18,7 +18,7 @@ void game_over(void)
     for (int tetrimino = 0; tetrimino < TETRIMINO_COUNT; ++tetrimino)
     {
         game.nextTetrimino =
-         (Tetrimino){ 0, (TetriminoColor)(tetrimino + 1), Facing_up };
+         (Tetrimino){ 0, (TetriminoColor)(tetrimino + 1), North };
 
         for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
         {

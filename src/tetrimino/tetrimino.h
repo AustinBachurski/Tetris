@@ -3,10 +3,10 @@
 
 typedef enum Orientation
 {
-    Facing_up,
-    Facing_down,
-    Facing_right,
-    Facing_left,
+    North,
+    South,
+    East,
+    West,
 } Orientation;
 
 typedef enum TetriminoColor
