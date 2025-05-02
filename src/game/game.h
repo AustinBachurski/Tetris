@@ -14,6 +14,15 @@ typedef struct GameData
     TetriminoColor playfield[PLAYFIELD_SIZE];
 } GameData;
 
+typedef enum Command
+{
+    Command_doNothing,
+    Command_moveDown,
+    Command_moveLeft,
+    Command_moveRight,
+    Command_rotate,
+} Command;
+
 void play_tetris(void);
 
 #endif

@@ -5,6 +5,8 @@
 #include "../game/gamesettings.h"
 #include "../tetrimino/tetrimino.h"
 
+#include <curses.h>
+
 #include <signal.h>
 #include <stdlib.h>
 
