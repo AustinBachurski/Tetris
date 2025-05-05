@@ -1,11 +1,13 @@
 #include "game.h"
 
 #include "gamesettings.h"
+#include "input.h"
 #include "../ui/ui.h"
-#include "../tetrimino/gravity.h"
 #include "../tetrimino/movement.h"
 #include "../tetrimino/tetrimino.h"
 
+#include <pthread.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -23,31 +25,27 @@ static TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
 static void initialize_game(GameData *game);
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
 static TetriminoColor only_one_remains(TetriminoColor bag[]);
-static void place_tetrimino(GameData *game, int const indices[]);
+static void place_tetrimino(GameData *game);
 INTERNAL void reset_bag(TetriminoColor bag[]);
-[[nodiscard]] static bool space_is_occupied(GameData* game, int const indices[]);
-INTERNAL void spawn_tetrimino(GameData *game);
+[[nodiscard]] static int spawnpoint_for(TetriminoColor const color);
 static void wait_for_keypress(GameData *game);
-
-int const lightBlueSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 4, 5, 6, };
-int const darkBlueSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 13, 14, 15, };
-int const orangeSpawnIndices[SQUARES_PER_TETRIMINO] = { 5, 13, 14, 15, };
-int const yellowSpawnIndices[SQUARES_PER_TETRIMINO] = { 4, 5, 14, 15 };
-int const greenSpawnIndices[SQUARES_PER_TETRIMINO] = { 4, 5, 13, 14 };
-int const redSpawnIndices[SQUARES_PER_TETRIMINO] = { 3, 4, 14, 15 };
-int const magentaSpawnIndices[SQUARES_PER_TETRIMINO] = { 4, 13, 14, 15 };
 
 void play_tetris(void)
 {
     GameData game;
     initialize_game(&game);
 
+    atomic_int command;
+    atomic_init(&command, (int)Command_doNothing);
+
+    pthread_t inputThread;
+    pthread_create(&inputThread, NULL, read_user_input, &command);
+
     while (true)
     {
         draw_playfield(&game);
 
-        const char choice = (char)getch();
-        move_tetrimino(&game, choice);
+        move_tetrimino(&game, &command);
 
         if (!gravity_down(&game))
         {
@@ -57,16 +55,24 @@ void play_tetris(void)
             }
             else
             {
-                show_game_over(&game);  // May exit application.
+                if (game_over_exit(&game, &command))
+                {
+                    break;
+                }
+
+                pthread_cancel(inputThread);
                 initialize_game(&game);
+
+                pthread_create(&inputThread, NULL, read_user_input, &command);
+                atomic_store_explicit(&command,
+                                      (int)Command_doNothing,
+                                      memory_order_release);
             }
         }
     }
 
-    if (is_game_over(&game))
-    {
-        exit_game(1);
-    }
+    pthread_cancel(inputThread);
+    pthread_join(inputThread, NULL);
 
     exit_game(0);
 }
@@ -80,41 +86,8 @@ static void cycle_in_next_tetrimino(GameData *game)
 {
     game->currentTetrimino = game->nextTetrimino;
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
-    spawn_tetrimino(game);
+    place_tetrimino(game);
     set_preview(game);
-}
-
-INTERNAL bool is_game_over(GameData *game)
-{
-    switch (game->nextTetrimino.type)
-    {
-        case Tetrimino_empty:
-            // TODO: Should never happen - how to handle error?
-            return true;
-
-        case Tetrimino_lightBlue:
-            return space_is_occupied(game, lightBlueSpawnIndices);
-
-        case Tetrimino_darkBlue:
-            return space_is_occupied(game, darkBlueSpawnIndices);
-
-        case Tetrimino_orange:
-            return space_is_occupied(game, orangeSpawnIndices);
-
-        case Tetrimino_yellow:
-            return space_is_occupied(game, yellowSpawnIndices);
-
-        case Tetrimino_green:
-            return space_is_occupied(game, greenSpawnIndices);
-
-        case Tetrimino_red:
-            return space_is_occupied(game, redSpawnIndices);
-
-        case Tetrimino_magenta:
-            return space_is_occupied(game, magentaSpawnIndices);
-    }
-
-    return true; // TODO: Handle this.
 }
 
 static TetriminoColor get_next_tetrimino(TetriminoColor bag[])
@@ -155,7 +128,9 @@ static void initialize_game(GameData *game)
 
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
 {
-    return (Tetrimino){ 0, get_next_tetrimino(bag), North };
+    TetriminoColor const color = get_next_tetrimino(bag);
+
+    return (Tetrimino){ spawnpoint_for(color), color, North };
 }
 
 static TetriminoColor only_one_remains(TetriminoColor bag[])
@@ -178,8 +153,11 @@ static TetriminoColor only_one_remains(TetriminoColor bag[])
     return selection;
 }
 
-static void place_tetrimino(GameData *game, int const indices[])
+static void place_tetrimino(GameData *game)
 {
+    int indices[SQUARES_PER_TETRIMINO];
+    indices_for(&game->currentTetrimino, indices);
+
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
         game->playfield[indices[i]] = game->currentTetrimino.type;
@@ -194,8 +172,11 @@ INTERNAL void reset_bag(TetriminoColor bag[])
     }
 }
 
-static bool space_is_occupied(GameData* game, int const indices[])
+INTERNAL bool is_game_over(GameData *game)
 {
+    int indices[SQUARES_PER_TETRIMINO];
+    indices_for(&game->nextTetrimino, indices);
+
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
         if (Tetrimino_empty != game->playfield[indices[i]])
@@ -206,49 +187,37 @@ static bool space_is_occupied(GameData* game, int const indices[])
     return false;
 }
 
-INTERNAL void spawn_tetrimino(GameData *game)
+static int spawnpoint_for(TetriminoColor const color)
 {
-    switch (game->currentTetrimino.type)
+    switch (color)
     {
         case Tetrimino_empty:
             // TODO: Should never happen.
-            return;
+            break;
 
         case Tetrimino_lightBlue:
-            game->currentTetrimino.centroid = LIGHTBLUE_SPAWNPOINT;
-            place_tetrimino(game, lightBlueSpawnIndices);
-            return;
+            return LIGHTBLUE_SPAWNPOINT;
 
         case Tetrimino_darkBlue:
-            game->currentTetrimino.centroid = DARKBLUE_SPAWNPOINT;
-            place_tetrimino(game, darkBlueSpawnIndices);
-            return;
+            return DARKBLUE_SPAWNPOINT;
 
         case Tetrimino_orange:
-            game->currentTetrimino.centroid = ORANGE_SPAWNPOINT;
-            place_tetrimino(game, orangeSpawnIndices);
-            return;
+            return ORANGE_SPAWNPOINT;
 
         case Tetrimino_yellow:
-            game->currentTetrimino.centroid = YELLOW_SPAWNPOINT;
-            place_tetrimino(game, yellowSpawnIndices);
-            return;
+            return YELLOW_SPAWNPOINT;
 
         case Tetrimino_green:
-            game->currentTetrimino.centroid = GREEN_SPAWNPOINT;
-            place_tetrimino(game, greenSpawnIndices);
-            return;
+            return GREEN_SPAWNPOINT;
 
         case Tetrimino_red:
-            game->currentTetrimino.centroid = RED_SPAWNPOINT;
-            place_tetrimino(game, redSpawnIndices);
-            return;
+            return RED_SPAWNPOINT;
 
         case Tetrimino_magenta:
-            game->currentTetrimino.centroid = MAGENTA_SPAWNPOINT;
-            place_tetrimino(game, magentaSpawnIndices);
-            return;
+            return MAGENTA_SPAWNPOINT;
     }
+
+    return -1;
 }
 
 static void wait_for_keypress(GameData *game)

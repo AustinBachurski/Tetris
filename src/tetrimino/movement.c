@@ -1,10 +1,11 @@
 #include "movement.h"
 
 #include "gamesettings.h"
-#include "moveleft.h"
-#include "moveright.h"
+#include "movedown.h"
+#include "tetrimino.h"
 #include "../game/game.h"
-#include "../tetrimino/tetrimino.h"
+
+#include <stdatomic.h>
 
 static void indices_for_light_blue(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_dark_blue(Tetrimino const *tetrimino, int indices[]);
@@ -14,32 +15,55 @@ static void indices_for_green(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_red(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_magenta(Tetrimino const *tetrimino, int indices[]);
 static void rotate_tetrimino(Tetrimino *tetrimino);
+static void validate_and_move(GameData *game, Command const command);
 
-void move_tetrimino(GameData *game, char const direction)
+void apply_changes(GameData *game, MovementData const *data)
 {
-    switch (direction)
+    // Clear old spaces.
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
-        // Left
-        case 'r':
-            move_tetrimino_left(game);
-            break;
-
-        // Right
-        case 't':
-            move_tetrimino_right(game);
-            break;
-
-        // Rotate
-        case 'f':
-            return;
-
-        // Down
-        case 's':
-            return;
+        game->playfield[data->sourceIndices[i]] = Tetrimino_empty;
     }
+
+    // Assign new spaces.
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        game->playfield[data->targetIndices[i]] = game->currentTetrimino.type;
+    }
+
+    game->currentTetrimino = data->target;
 }
 
-static void indices_for(Tetrimino const *tetrimino, int indices[])
+bool is_self(int const target, int const sourceIndices[])
+{
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        if (sourceIndices[i] == target)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void move_tetrimino(GameData *game, atomic_int *command)
+{
+    Command inputCommand = (Command)atomic_load_explicit(command,
+                                                         memory_order_acquire);
+    if (!inputCommand)
+    {
+        return;
+    }
+
+    validate_and_move(game, inputCommand);
+
+    atomic_store_explicit(command,
+                          (int)Command_doNothing,
+                          memory_order_release);
+}
+
+void indices_for(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->type)
     {
@@ -296,3 +320,29 @@ static void rotate_tetrimino(Tetrimino *tetrimino)
     }
 }
 
+static void validate_and_move(GameData *game, Command const command)
+{
+    switch (command)
+    {
+        case Command_doNothing:
+            [[fallthrough]];
+        case Command_playAgain:
+            [[fallthrough]];
+        case Command_quit:
+            return;
+
+        case Command_moveLeft:
+            return;
+
+        case Command_moveRight:
+            return;
+
+        case Command_moveDown:
+            move_tetrimino_down(game);
+            return;
+
+        case Command_rotate:
+            rotate_tetrimino(&game->currentTetrimino);
+            return;
+    }
+}

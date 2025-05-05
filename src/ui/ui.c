@@ -8,6 +8,7 @@
 #include <curses.h>
 
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 
 static void cleanup_and_exit(int code);
@@ -136,7 +137,7 @@ void set_preview(GameData *game)
     }
 }
 
-void show_game_over(GameData *game)
+bool game_over_exit(GameData *game, atomic_int *command)
 {
     mvwprintw(game->ui.playfieldWindow, 0, 4, "  Game Over!  ");
     wrefresh(game->ui.playfieldWindow);
@@ -146,17 +147,31 @@ void show_game_over(GameData *game)
     mvwprintw(game->ui.previewWindow, 3, 1, "   (y/n)?");
     wrefresh(game->ui.previewWindow);
 
-    char choice = (char)getch();
+    Command choice = Command_doNothing;
 
-    while (choice != 'y' && choice != 'n')
+    while (Command_playAgain != choice && Command_quit != choice)
     {
-        choice = (char)getch();
+        while (!choice)
+        {
+            choice = (Command)atomic_load_explicit(command, memory_order_acquire);
+        }
+
+        if (Command_quit == choice)
+        {
+            return true;
+        }
+
+        if (Command_playAgain == choice)
+        {
+            return false;
+        }
+
+        atomic_store_explicit(command,
+                              (int) Command_doNothing,
+                              memory_order_release);
     }
 
-    if ('n' == choice)
-    {
-        exit_game(0);
-    }
+    return true;
 }
 
 static void cleanup_and_exit(int code)

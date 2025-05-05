@@ -21,7 +21,16 @@ typedef enum Command
     Command_moveLeft,
     Command_moveRight,
     Command_rotate,
+    Command_playAgain,
+    Command_quit,
 } Command;
+
+typedef struct MovementData
+{
+    Tetrimino target;
+    int sourceIndices[SQUARES_PER_TETRIMINO];
+    int targetIndices[SQUARES_PER_TETRIMINO];
+} MovementData;
 
 void play_tetris(void);
 
