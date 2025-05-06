@@ -5,8 +5,15 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED YES)
 set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
 
-set(CMAKE_C_FLAGS "${CMAKE_CRR_FLAGS}
-    -Werror -Wall -Wextra -Wpedantic -Wconversion -fsanitize=address -g3")
+set(CMAKE_C_FLAGS "${CMAKE_CRR_FLAGS} \
+    -Werror \
+    -Wall \
+    -Wextra \
+    -Wpedantic \
+    -Wconversion \
+    -fsanitize=address \
+    -g3"
+)
 
 find_package(Curses REQUIRED)
 
