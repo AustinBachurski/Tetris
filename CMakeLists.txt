@@ -16,7 +16,7 @@ add_executable(tetris src/main.c
                       src/tetrimino/movedown.c
                       src/tetrimino/moveleft.c
                       src/tetrimino/moveright.c
-                      src/tetrimino/validation.c
+                      src/tetrimino/rotation.c
                       src/ui/ui.c
 )
 

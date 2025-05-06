@@ -65,24 +65,19 @@ void play_tetris(void)
         if (!is_game_over(&game))
         {
             cycle_in_next_tetrimino(&game);
-            gettimeofday(&game.dropTime, NULL);
             continue;
         }
 
-        if (game_over_exit(&game, &command))
-        {
-            break;
-        }
-        else
+        if (!game_over_exit(&game, &command))
         {
             new_game(&game, &command, &inputThread);
+            continue;
         }
+
+        pthread_cancel(inputThread);
+        pthread_join(inputThread, NULL);
+        exit_game(0);
     }
-
-    pthread_cancel(inputThread);
-    pthread_join(inputThread, NULL);
-
-    exit_game(0);
 }
 
 INTERNAL void clear_playfield(GameData *game)
@@ -96,6 +91,7 @@ static void cycle_in_next_tetrimino(GameData *game)
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
     place_tetrimino(game);
     set_preview(game);
+    gettimeofday(&game->dropTime, NULL);
 }
 
 static TetriminoColor get_next_tetrimino(TetriminoColor bag[])
@@ -149,7 +145,6 @@ static void initialize_game(GameData *game)
     set_preview(game);
     wait_for_keypress(game);
     cycle_in_next_tetrimino(game);
-    gettimeofday(&game->dropTime, NULL);
 }
 
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])

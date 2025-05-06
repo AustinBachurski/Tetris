@@ -2,6 +2,9 @@
 
 #include "gamesettings.h"
 #include "movedown.h"
+#include "moveleft.h"
+#include "moveright.h"
+#include "rotation.h"
 #include "tetrimino.h"
 #include "../game/game.h"
 
@@ -14,7 +17,6 @@ static void indices_for_yellow(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_green(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_red(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_magenta(Tetrimino const *tetrimino, int indices[]);
-static void rotate_tetrimino(Tetrimino *tetrimino);
 static void validate_and_move(GameData *game, Command const command);
 
 void apply_changes(GameData *game, MovementData const *data)
@@ -147,14 +149,14 @@ static void indices_for_dark_blue(Tetrimino const *tetrimino, int indices[])
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - 1;
             indices[2] = tetrimino->centroid + 1;
-            indices[3] = tetrimino->centroid + 1 - PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid + 1 + PLAYFIELD_COLUMNS;
         return;
 
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
-            indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS - 1;
-            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS;
+            indices[2] = tetrimino->centroid + PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS - 1;
         return;
     }
 }
@@ -232,8 +234,8 @@ static void indices_for_green(Tetrimino const *tetrimino, int indices[])
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
-            indices[2] = tetrimino->centroid - 1;
-            indices[3] = tetrimino->centroid - 1 - PLAYFIELD_COLUMNS;
+            indices[2] = tetrimino->centroid + 1;
+            indices[3] = tetrimino->centroid + 1 + PLAYFIELD_COLUMNS;
         return;
     }
 }
@@ -256,7 +258,7 @@ static void indices_for_red(Tetrimino const *tetrimino, int indices[])
             [[fallthrough]];
         case West:
             indices[0] = tetrimino->centroid;
-            indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
+            indices[1] = tetrimino->centroid + PLAYFIELD_COLUMNS;
             indices[2] = tetrimino->centroid + 1;
             indices[3] = tetrimino->centroid + 1 - PLAYFIELD_COLUMNS;
         return;
@@ -298,28 +300,6 @@ static void indices_for_magenta(Tetrimino const *tetrimino, int indices[])
     }
 }
 
-static void rotate_tetrimino(Tetrimino *tetrimino)
-{
-    switch (tetrimino->orientation)
-    {
-        case North:
-            tetrimino->orientation = East;
-            return;
-
-        case East:
-            tetrimino->orientation = South;
-            return;
-
-        case South:
-            tetrimino->orientation = West;
-            return;
-
-        case West:
-            tetrimino->orientation = North;
-            return;
-    }
-}
-
 static void validate_and_move(GameData *game, Command const command)
 {
     switch (command)
@@ -332,9 +312,11 @@ static void validate_and_move(GameData *game, Command const command)
             return;
 
         case Command_moveLeft:
+            move_tetrimino_left(game);
             return;
 
         case Command_moveRight:
+            move_tetrimino_right(game);
             return;
 
         case Command_moveDown:
@@ -342,7 +324,7 @@ static void validate_and_move(GameData *game, Command const command)
             return;
 
         case Command_rotate:
-            rotate_tetrimino(&game->currentTetrimino);
+            rotate_tetrimino(game);
             return;
     }
 }

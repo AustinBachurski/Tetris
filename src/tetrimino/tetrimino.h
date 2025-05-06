@@ -11,14 +11,14 @@ typedef enum Orientation
 
 typedef enum TetriminoColor
 {
-    Tetrimino_empty = 0,
-    Tetrimino_lightBlue = 1,
-    Tetrimino_darkBlue = 2,
-    Tetrimino_orange = 3,
-    Tetrimino_yellow = 4,
-    Tetrimino_green = 5,
-    Tetrimino_red = 6,
-    Tetrimino_magenta = 7,
+    Tetrimino_empty,
+    Tetrimino_lightBlue,
+    Tetrimino_darkBlue,
+    Tetrimino_orange,
+    Tetrimino_yellow,
+    Tetrimino_green,
+    Tetrimino_red,
+    Tetrimino_magenta,
 } TetriminoColor;
 
 typedef struct Tetrimino

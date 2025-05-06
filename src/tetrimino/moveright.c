@@ -1,105 +1,49 @@
 #include "moveright.h"
 
-#include "tetrimino.h"
-#include "validation.h"
+#include "movement.h"
 #include "../game/game.h"
 #include "../game/gamesettings.h"
 
-static void indices_for_right(Tetrimino *current, int indices[]);
-static bool is_self(int indices[], int current);
+[[nodiscard]] static bool is_valid_move(GameData *game, MovementData *data);
 
 void move_tetrimino_right(GameData *game)
 {
-    int indices[SQUARES_PER_TETRIMINO];
-    indices_for_right(&game->currentTetrimino, indices);
+    MovementData data;
+    data.target = game->currentTetrimino;
+    ++data.target.centroid;
 
-    if (!valid_move(game->playfield, indices, is_self))
+    indices_for(&game->currentTetrimino, data.sourceIndices);
+    indices_for(&data.target, data.targetIndices);
+
+    if (is_valid_move(game, &data))
     {
-        return;
-    }
-
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        game->playfield[indices[i] - 1] = Tetrimino_empty;
-    }
-
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        game->playfield[indices[i]] = game->currentTetrimino.type;
-    }
-
-    ++game->currentTetrimino.centroid;
-    return;
-}
-
-static void indices_for_right(Tetrimino *current, int indices[])
-{
-    switch (current->type)
-    {
-        case Tetrimino_empty:
-            return;
-
-        case Tetrimino_lightBlue:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid;
-            indices[2] = current->centroid + 2;
-            indices[3] = current->centroid + 3;
-            return;
-
-        case Tetrimino_darkBlue:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid;
-            indices[2] = current->centroid - PLAYFIELD_COLUMNS;
-            indices[3] = current->centroid + 2;
-            return;
-
-        case Tetrimino_orange:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid;
-            indices[2] = current->centroid + 2;
-            indices[3] = current->centroid - PLAYFIELD_COLUMNS + 2;
-            return;
-
-        case Tetrimino_yellow:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid - PLAYFIELD_COLUMNS + 1;
-            indices[2] = current->centroid + 2;
-            indices[3] = current->centroid - PLAYFIELD_COLUMNS + 2;
-            return;
-
-        case Tetrimino_green:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid;
-            indices[2] = current->centroid - PLAYFIELD_COLUMNS + 1;
-            indices[3] = current->centroid - PLAYFIELD_COLUMNS + 2;
-            return;
-
-        case Tetrimino_red:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid - PLAYFIELD_COLUMNS + 1;
-            indices[2] = current->centroid - PLAYFIELD_COLUMNS;
-            indices[3] = current->centroid + 2;
-            return;
-
-        case Tetrimino_magenta:
-            indices[0] = current->centroid + 1;
-            indices[1] = current->centroid;
-            indices[2] = current->centroid - PLAYFIELD_COLUMNS + 1;
-            indices[3] = current->centroid + 2;
-            return;
+        apply_changes(game, &data);
     }
 }
 
-static bool is_self(int indices[], int current)
+static bool is_valid_move(GameData *game, MovementData *data)
 {
     for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
     {
-        if (indices[i] - 1 == current)
+        int const sourceIndex = data->sourceIndices[i];
+        int const targetIndex = data->targetIndices[i];
+        int const lowerBound = sourceIndex / 10 * 10;
+        int const upperBound = lowerBound + 9;
+
+        if (targetIndex < lowerBound || targetIndex > upperBound)
         {
-            return true;
+            return false;
+        }
+
+        if (Tetrimino_empty != game->playfield[targetIndex])
+        {
+            if (!is_self(targetIndex, data->sourceIndices))
+            {
+                return false;
+            }
         }
     }
 
-    return false;
+    return true;
 }
 

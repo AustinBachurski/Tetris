@@ -1,10 +1,12 @@
 #include "movedown.h"
 
 #include "movement.h"
-#include "gamesettings.h"
 #include "../game/game.h"
+#include "../game/gamesettings.h"
 
-static bool is_valid_move(GameData *game, MovementData *data);
+#include <sys/time.h>
+
+[[nodiscard]] static bool is_valid_move(GameData *game, MovementData *data);
 
 bool gravity_down(GameData *game)
 {
@@ -36,6 +38,7 @@ void move_tetrimino_down(GameData *game)
     if (is_valid_move(game, &data))
     {
         apply_changes(game, &data);
+        gettimeofday(&game->dropTime, NULL);
     }
 }
 
