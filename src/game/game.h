@@ -5,6 +5,8 @@
 #include "../ui/ui.h"
 #include "../tetrimino/tetrimino.h"
 
+#include <sys/time.h>
+
 typedef struct GameData
 {
     GameUI ui;
@@ -12,6 +14,8 @@ typedef struct GameData
     Tetrimino nextTetrimino;
     TetriminoColor randomBag[TETRIMINO_COUNT];
     TetriminoColor playfield[PLAYFIELD_SIZE];
+    double difficulty;
+    struct timeval dropTime;
 } GameData;
 
 typedef enum Command

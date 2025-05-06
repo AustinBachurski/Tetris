@@ -10,7 +10,9 @@
 #include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
+
+#define ONE_SECOND_US 1000000
 
 #ifdef UNIT_TEST
     #define INTERNAL /* as nothing for unit testing */
@@ -23,7 +25,9 @@ static void cycle_in_next_tetrimino(GameData *game);
 [[nodiscard]] INTERNAL bool is_game_over(GameData *game);
 static TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
 static void initialize_game(GameData *game);
+[[nodiscard]] static bool is_time_for_gravity(GameData *game);
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
+static void new_game(GameData *game, atomic_int *command, pthread_t *inputThread);
 static TetriminoColor only_one_remains(TetriminoColor bag[]);
 static void place_tetrimino(GameData *game);
 INTERNAL void reset_bag(TetriminoColor bag[]);
@@ -47,31 +51,39 @@ void play_tetris(void)
 
         move_tetrimino(&game, &command);
 
-        if (!gravity_down(&game))
+        if (!is_time_for_gravity(&game))
         {
-            if (!is_game_over(&game))
-            {
-                cycle_in_next_tetrimino(&game);
-            }
-            else
-            {
-                if (game_over_exit(&game, &command))
-                {
-                    break;
-                }
+            continue;
+        }
 
-                pthread_cancel(inputThread);
-                initialize_game(&game);
+        if (gravity_down(&game))
+        {
+            gettimeofday(&game.dropTime, NULL);
+            continue;
+        }
 
-                pthread_create(&inputThread, NULL, read_user_input, &command);
-                atomic_store_explicit(&command,
-                                      (int)Command_doNothing,
-                                      memory_order_release);
-            }
+        if (!is_game_over(&game))
+        {
+            cycle_in_next_tetrimino(&game);
+            gettimeofday(&game.dropTime, NULL);
+            continue;
+        }
+
+        if (game_over_exit(&game, &command))
+        {
+            break;
+        }
+        else
+        {
+            new_game(&game, &command, &inputThread);
         }
     }
 
     pthread_cancel(inputThread);
+
+    mvwprintw(game.ui.previewWindow, 2, 1, "Exiting!");
+    wrefresh(game.ui.previewWindow);
+
     pthread_join(inputThread, NULL);
 
     exit_game(0);
@@ -113,17 +125,35 @@ static TetriminoColor get_next_tetrimino(TetriminoColor bag[])
     return selection;
 }
 
+static bool is_time_for_gravity(GameData *game)
+{
+    struct timeval now;
+    gettimeofday(&now, NULL);
+
+    long diffSeconds = now.tv_sec - game->dropTime.tv_sec;
+    long diffMicroseconds = now.tv_usec - game->dropTime.tv_usec;
+
+    double diff = (double)(diffSeconds * ONE_SECOND_US + diffMicroseconds);
+
+    double compare = ONE_SECOND_US * game->difficulty;
+
+    bool result = diff >= compare;
+    return result;
+}
+
 static void initialize_game(GameData *game)
 {
     srand((unsigned int)time(NULL));
     reset_bag(game->randomBag);
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
+    game->difficulty = 1.0;
 
     clear_playfield(game);
     initialize_ui(game);
     set_preview(game);
     wait_for_keypress(game);
     cycle_in_next_tetrimino(game);
+    gettimeofday(&game->dropTime, NULL);
 }
 
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
@@ -131,6 +161,20 @@ INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
     TetriminoColor const color = get_next_tetrimino(bag);
 
     return (Tetrimino){ spawnpoint_for(color), color, North };
+}
+
+static void new_game(GameData *game,
+                     atomic_int *command, pthread_t *inputThread)
+{
+    pthread_cancel(*inputThread);
+    pthread_join(*inputThread, NULL);
+
+    initialize_game(game);
+
+    pthread_create(inputThread, NULL, read_user_input, command);
+    atomic_store_explicit(command,
+                          (int)Command_doNothing,
+                          memory_order_release);
 }
 
 static TetriminoColor only_one_remains(TetriminoColor bag[])

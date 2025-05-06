@@ -207,8 +207,8 @@ static void indices_for_yellow(Tetrimino const *tetrimino, int indices[])
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid + 1;
-            indices[2] = tetrimino->centroid + PLAYFIELD_COLUMNS;
-            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS + 1;
+            indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid - PLAYFIELD_COLUMNS + 1;
             return;
     }
 }
@@ -222,8 +222,8 @@ static void indices_for_green(Tetrimino const *tetrimino, int indices[])
         case South:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - 1;
-            indices[2] = tetrimino->centroid + PLAYFIELD_COLUMNS;
-            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS + 1;
+            indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid - PLAYFIELD_COLUMNS + 1;
             return;
 
  
@@ -247,8 +247,8 @@ static void indices_for_red(Tetrimino const *tetrimino, int indices[])
         case South:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid + 1;
-            indices[2] = tetrimino->centroid + PLAYFIELD_COLUMNS;
-            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS - 1;
+            indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid - PLAYFIELD_COLUMNS - 1;
             return;
 
  

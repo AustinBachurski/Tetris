@@ -149,11 +149,12 @@ bool game_over_exit(GameData *game, atomic_int *command)
 
     Command choice = Command_doNothing;
 
-    while (Command_playAgain != choice && Command_quit != choice)
+    while (true)
     {
         while (!choice)
         {
-            choice = (Command)atomic_load_explicit(command, memory_order_acquire);
+            choice = (Command)atomic_load_explicit(command,
+                                                   memory_order_acquire);
         }
 
         if (Command_quit == choice)
@@ -169,6 +170,7 @@ bool game_over_exit(GameData *game, atomic_int *command)
         atomic_store_explicit(command,
                               (int) Command_doNothing,
                               memory_order_release);
+        choice = Command_doNothing;
     }
 
     return true;
