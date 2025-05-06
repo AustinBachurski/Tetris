@@ -27,7 +27,8 @@ static TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
 static void initialize_game(GameData *game);
 [[nodiscard]] static bool is_time_for_gravity(GameData *game);
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
-static void new_game(GameData *game, atomic_int *command, pthread_t *inputThread);
+static void new_game(GameData *game,
+                     atomic_int *command, pthread_t *inputThread);
 static TetriminoColor only_one_remains(TetriminoColor bag[]);
 static void place_tetrimino(GameData *game);
 INTERNAL void reset_bag(TetriminoColor bag[]);
