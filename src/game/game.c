@@ -80,10 +80,6 @@ void play_tetris(void)
     }
 
     pthread_cancel(inputThread);
-
-    mvwprintw(game.ui.previewWindow, 2, 1, "Exiting!");
-    wrefresh(game.ui.previewWindow);
-
     pthread_join(inputThread, NULL);
 
     exit_game(0);
