@@ -12,7 +12,7 @@ bool gravity_down(GameData *game)
 {
     MovementData data;
     data.target = game->currentTetrimino;
-    data.target.centroid += PLAYFIELD_COLUMNS;
+    data.target.centroid -= PLAYFIELD_COLUMNS;
 
     indices_for(&game->currentTetrimino, data.sourceIndices);
     indices_for(&data.target, data.targetIndices);
@@ -30,7 +30,7 @@ void move_tetrimino_down(GameData *game)
 {
     MovementData data;
     data.target = game->currentTetrimino;
-    data.target.centroid += PLAYFIELD_COLUMNS;
+    data.target.centroid -= PLAYFIELD_COLUMNS;
 
     indices_for(&game->currentTetrimino, data.sourceIndices);
     indices_for(&data.target, data.targetIndices);
@@ -48,7 +48,7 @@ static bool is_valid_move(GameData *game, MovementData *data)
     {
         int const targetIndex = data->targetIndices[i];
 
-        if (PLAYFIELD_SIZE <= targetIndex)
+        if (0 > targetIndex)
         {
             return false;
         }

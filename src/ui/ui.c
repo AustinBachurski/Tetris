@@ -21,12 +21,12 @@ extern void initialize_game(GameData *game);
 
 void draw_playfield(GameData *game)
 {
-    int screenRow = 0;
+    int screenRow = PLAYFIELD_ROWS;
     int screenColumn = 0;
 
     for (int row = 0; row < PLAYFIELD_SIZE; row += PLAYFIELD_COLUMNS)
     {
-        screenRow = row / PLAYFIELD_COLUMNS + 1;
+        screenRow = PLAYFIELD_ROWS - (row / PLAYFIELD_COLUMNS);
         screenColumn = 1;
 
         for (int column = row % PLAYFIELD_COLUMNS;

@@ -32,7 +32,7 @@ typedef struct Tetrimino
 //
 // Light Blue
 //
-//   [ ][*][ ][ ]
+//   [ ][ ][*][ ]
 //
 //
 // Dark Blue
@@ -49,20 +49,20 @@ typedef struct Tetrimino
 //
 // Yellow
 //
+//   [ ][*]
 //   [ ][ ]
-//   [*][ ]
 //
 //
 // Green
 //
-//      [ ][ ]
-//   [ ][*]
+//      [*][ ]
+//   [ ][ ]
 //
 //
 // Red
 //
-//   [ ][ ]
-//      [*][ ]
+//   [ ][*]
+//      [ ][ ]
 //
 //
 // Magenta
