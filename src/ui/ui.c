@@ -70,6 +70,46 @@ void initialize_ui(GameData *game)
     initialize_game_windows(&game->ui);
 }
 
+bool play_again(GameData *game, InputHandles *input)
+{
+    mvwprintw(game->ui.playfieldWindow, 0, 4, "  Game Over!  ");
+    wrefresh(game->ui.playfieldWindow);
+
+    clear_preview(game->ui.previewWindow);
+    mvwprintw(game->ui.previewWindow, 2, 1, " Play Again");
+    mvwprintw(game->ui.previewWindow, 3, 1, "   (y/n)?");
+    wrefresh(game->ui.previewWindow);
+
+    Command choice = Command_doNothing;
+
+    while (true)
+    {
+        while (!choice)
+        {
+            choice = (Command)atomic_load_explicit(&input->command,
+                                                   memory_order_acquire);
+        }
+
+        if (Command_quit == choice)
+        {
+            return false;
+        }
+
+        if (Command_playAgain == choice)
+        {
+            return true;
+        }
+
+        atomic_store_explicit(&input->command,
+                              (int) Command_doNothing,
+                              memory_order_release);
+
+        choice = Command_doNothing;
+    }
+
+    return false;
+}
+
 void set_preview(GameData *game)
 {
     clear_preview(game->ui.previewWindow);
@@ -135,45 +175,6 @@ void set_preview(GameData *game)
             wrefresh(game->ui.previewWindow);
             return;
     }
-}
-
-bool game_over_exit(GameData *game, atomic_int *command)
-{
-    mvwprintw(game->ui.playfieldWindow, 0, 4, "  Game Over!  ");
-    wrefresh(game->ui.playfieldWindow);
-
-    clear_preview(game->ui.previewWindow);
-    mvwprintw(game->ui.previewWindow, 2, 1, " Play Again");
-    mvwprintw(game->ui.previewWindow, 3, 1, "   (y/n)?");
-    wrefresh(game->ui.previewWindow);
-
-    Command choice = Command_doNothing;
-
-    while (true)
-    {
-        while (!choice)
-        {
-            choice = (Command)atomic_load_explicit(command,
-                                                   memory_order_acquire);
-        }
-
-        if (Command_quit == choice)
-        {
-            return true;
-        }
-
-        if (Command_playAgain == choice)
-        {
-            return false;
-        }
-
-        atomic_store_explicit(command,
-                              (int) Command_doNothing,
-                              memory_order_release);
-        choice = Command_doNothing;
-    }
-
-    return true;
 }
 
 static void cleanup_and_exit(int code)

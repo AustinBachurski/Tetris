@@ -11,8 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-
-#define ONE_SECOND_US 1000000
+#include <time.h>
 
 #ifdef UNIT_TEST
     #define INTERNAL /* as nothing for unit testing */
@@ -22,63 +21,35 @@
 
 INTERNAL void clear_playfield(GameData *game);
 static void cycle_in_next_tetrimino(GameData *game);
+static void game_loop(GameData *game, InputHandles *input, FrameTime *times);
 [[nodiscard]] INTERNAL bool is_game_over(GameData *game);
 static TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
 static void initialize_game(GameData *game);
+static void initialize_input(InputHandles *input);
+static void initialize_time(FrameTime *times);
 [[nodiscard]] static bool is_time_for_gravity(GameData *game);
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
-static void new_game(GameData *game,
-                     atomic_int *command, pthread_t *inputThread);
+static void new_game(GameData *game, InputHandles *input);
 static TetriminoColor only_one_remains(TetriminoColor bag[]);
 static void place_tetrimino(GameData *game);
 INTERNAL void reset_bag(TetriminoColor bag[]);
+static void sleep_for(FrameTime *times);
 [[nodiscard]] static int spawnpoint_for(TetriminoColor const color);
 static void wait_for_keypress(GameData *game);
 
 void play_tetris(void)
 {
     GameData game;
+    InputHandles input;
+    FrameTime times;
+
     initialize_game(&game);
+    initialize_input(&input);
+    initialize_time(&times);
 
-    atomic_int command;
-    atomic_init(&command, (int)Command_doNothing);
+    game_loop(&game, &input, &times);
 
-    pthread_t inputThread;
-    pthread_create(&inputThread, NULL, read_user_input, &command);
-
-    while (true)
-    {
-        draw_playfield(&game);
-
-        move_tetrimino(&game, &command);
-
-        if (!is_time_for_gravity(&game))
-        {
-            continue;
-        }
-
-        if (gravity_down(&game))
-        {
-            gettimeofday(&game.dropTime, NULL);
-            continue;
-        }
-
-        if (!is_game_over(&game))
-        {
-            cycle_in_next_tetrimino(&game);
-            continue;
-        }
-
-        if (!game_over_exit(&game, &command))
-        {
-            new_game(&game, &command, &inputThread);
-            continue;
-        }
-
-        pthread_cancel(inputThread);
-        pthread_join(inputThread, NULL);
-        exit_game(0);
-    }
+    exit_game(0);
 }
 
 INTERNAL void clear_playfield(GameData *game)
@@ -93,6 +64,39 @@ static void cycle_in_next_tetrimino(GameData *game)
     place_tetrimino(game);
     set_preview(game);
     gettimeofday(&game->dropTime, NULL);
+}
+
+static void game_loop(GameData *game, InputHandles *input, FrameTime *times)
+{
+    while (true)
+    {
+        draw_playfield(game);
+        move_tetrimino(game, &input->command);
+
+        if (is_time_for_gravity(game))
+        {
+            if (!gravity_down(game))
+            {
+                if (!is_game_over(game))
+                {
+                    cycle_in_next_tetrimino(game);
+                }
+                else if (play_again(game, input))
+                {
+                    new_game(game, input);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        sleep_for(times);
+    }
+
+    pthread_cancel(input->thread);
+    pthread_join(input->thread, NULL);
 }
 
 static TetriminoColor get_next_tetrimino(TetriminoColor bag[])
@@ -123,15 +127,19 @@ static bool is_time_for_gravity(GameData *game)
     struct timeval now;
     gettimeofday(&now, NULL);
 
-    long diffSeconds = now.tv_sec - game->dropTime.tv_sec;
-    long diffMicroseconds = now.tv_usec - game->dropTime.tv_usec;
+    long deltaSeconds = now.tv_sec - game->dropTime.tv_sec;
+    long deltaMicroseconds = now.tv_usec - game->dropTime.tv_usec;
 
-    double diff = (double)(diffSeconds * ONE_SECOND_US + diffMicroseconds);
+    long deltaTime = deltaSeconds * MICROSECONDS_PER_SECOND + deltaMicroseconds;
+    float moveTime = MICROSECONDS_PER_SECOND * game->difficulty;
 
-    double compare = ONE_SECOND_US * game->difficulty;
+    if ((float)deltaTime >= moveTime)
+    {
+        gettimeofday(&game->dropTime, NULL);
+        return true;
+    }
 
-    bool result = diff >= compare;
-    return result;
+    return false;
 }
 
 static void initialize_game(GameData *game)
@@ -148,6 +156,22 @@ static void initialize_game(GameData *game)
     cycle_in_next_tetrimino(game);
 }
 
+static void initialize_input(InputHandles *input)
+{
+    atomic_init(&input->command, (int)Command_doNothing);
+    pthread_create(&input->thread, NULL, read_user_input, &input->command);
+}
+
+static void initialize_time(FrameTime *times)
+{
+    times->loopStart.tv_sec = 0;
+    times->loopStart.tv_usec = 0;
+    times->loopEnd.tv_sec = 0;
+    times->loopEnd.tv_usec = 0;
+    times->delta.tv_sec = 0;
+    times->delta.tv_nsec = 0;
+}
+
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
 {
     TetriminoColor const color = get_next_tetrimino(bag);
@@ -155,16 +179,15 @@ INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
     return (Tetrimino){ spawnpoint_for(color), color, North };
 }
 
-static void new_game(GameData *game,
-                     atomic_int *command, pthread_t *inputThread)
+static void new_game(GameData *game, InputHandles *input)
 {
-    pthread_cancel(*inputThread);
-    pthread_join(*inputThread, NULL);
+    pthread_cancel(input->thread);
+    pthread_join(input->thread, NULL);
 
     initialize_game(game);
 
-    pthread_create(inputThread, NULL, read_user_input, command);
-    atomic_store_explicit(command,
+    pthread_create(&input->thread, NULL, read_user_input, &input->command);
+    atomic_store_explicit(&input->command,
                           (int)Command_doNothing,
                           memory_order_release);
 }
@@ -206,6 +229,23 @@ INTERNAL void reset_bag(TetriminoColor bag[])
     {
         bag[i] = (TetriminoColor)(i + 1);
     }
+}
+
+static void sleep_for(FrameTime *times)
+{
+    gettimeofday(&times->loopEnd, NULL);
+
+    long frameTime = times->loopEnd.tv_usec - times->loopStart.tv_usec;
+
+    if (frameTime < TARGET_FRAME_TIME)
+    {
+        times->delta.tv_nsec =
+            (TARGET_FRAME_TIME - frameTime) * NANOSECONDS_PER_MICROSECOND;
+
+        nanosleep(&times->delta, NULL);
+    }
+
+    gettimeofday(&times->loopStart, NULL);
 }
 
 INTERNAL bool is_game_over(GameData *game)

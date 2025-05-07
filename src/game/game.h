@@ -5,18 +5,9 @@
 #include "../ui/ui.h"
 #include "../tetrimino/tetrimino.h"
 
+#include <pthread.h>
+#include <stdatomic.h>
 #include <sys/time.h>
-
-typedef struct GameData
-{
-    GameUI ui;
-    Tetrimino currentTetrimino;
-    Tetrimino nextTetrimino;
-    TetriminoColor randomBag[TETRIMINO_COUNT];
-    TetriminoColor playfield[PLAYFIELD_SIZE];
-    double difficulty;
-    struct timeval dropTime;
-} GameData;
 
 typedef enum Command
 {
@@ -28,6 +19,30 @@ typedef enum Command
     Command_playAgain,
     Command_quit,
 } Command;
+
+typedef struct GameData
+{
+    GameUI ui;
+    Tetrimino currentTetrimino;
+    Tetrimino nextTetrimino;
+    TetriminoColor randomBag[TETRIMINO_COUNT];
+    TetriminoColor playfield[PLAYFIELD_SIZE];
+    float difficulty;
+    struct timeval dropTime;
+} GameData;
+
+typedef struct FrameTime
+{
+    struct timeval loopStart;
+    struct timeval loopEnd;
+    struct timespec delta; 
+} FrameTime;
+
+typedef struct InputHandles
+{
+    atomic_int command;
+    pthread_t thread;
+} InputHandles;
 
 typedef struct MovementData
 {
