@@ -13,6 +13,7 @@ typedef struct GameUI
     WINDOW *previewWindow;
 } GameUI;
 
+void animate_lines(GameData *game, int const rows[], int const size);
 void draw_playfield(GameData *game);
 void exit_game(int const code);
 void initialize_ui(GameData *game);

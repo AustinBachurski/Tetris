@@ -10,7 +10,13 @@
 #include <signal.h>
 #include <stdatomic.h>
 #include <stdlib.h>
+#include <time.h>
 
+#define ANIMATION_COLOR 8
+#define ANIMATION_STEPS 3
+#define NANOSECONDS_FOR_50_MILLISECONDS (50 * 1000000)
+
+static void animation_step(GameUI *ui, int const row, int const step);
 static void cleanup_and_exit(int code);
 static void clear_preview(WINDOW *previewWindow);
 static void initialize_colors(void);
@@ -18,6 +24,22 @@ static void initialize_game_windows(GameUI *ui);
 
 extern void clear_playfield(GameData *game);
 extern void initialize_game(GameData *game);
+
+void animate_lines(GameData *game, int const rows[], int const size)
+{
+    struct timespec const delay = { 0, NANOSECONDS_FOR_50_MILLISECONDS };
+
+    for (int step = 0; step < ANIMATION_STEPS; ++step)
+    {
+        for (int i = 0; i < size; ++i)
+        {
+            animation_step(&game->ui, rows[i] / PLAYFIELD_COLUMNS, step);
+        }
+
+        wrefresh(game->ui.playfieldWindow);
+        nanosleep(&delay, NULL);
+    }
+}
 
 void draw_playfield(GameData *game)
 {
@@ -177,6 +199,35 @@ void set_preview(GameData *game)
     }
 }
 
+static void animation_step(GameUI *ui, int const row, int const step)
+{
+    int const screenRow = PLAYFIELD_ROWS - row;
+
+    switch (step)
+    {
+        case 0:
+        {
+            wattron(ui->playfieldWindow, COLOR_PAIR(ANIMATION_COLOR));
+            mvwprintw(ui->playfieldWindow, screenRow, 1, "                    ");
+            wattroff(ui->playfieldWindow, COLOR_PAIR(ANIMATION_COLOR));
+            return;
+        }
+
+        case 1:
+        {
+            mvwprintw(ui->playfieldWindow, screenRow, 1, "====================");
+            return;
+        }
+
+        case 2:
+        {
+            mvwprintw(ui->playfieldWindow, screenRow, 1, "--------------------");
+            return;
+        }
+
+    }
+}
+
 static void cleanup_and_exit(int code)
 {
     endwin();
@@ -201,6 +252,7 @@ static void initialize_colors(void)
     init_pair(Tetrimino_green,     COLOR_BLACK, CUSTOM_COLOR_GREEN);
     init_pair(Tetrimino_red,       COLOR_BLACK, CUSTOM_COLOR_RED);
     init_pair(Tetrimino_magenta,   COLOR_BLACK, CUSTOM_COLOR_MAGENTA);
+    init_pair(ANIMATION_COLOR,     COLOR_BLACK, COLOR_WHITE);
 }
 
 static void initialize_game_windows(GameUI *ui)

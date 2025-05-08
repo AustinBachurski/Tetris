@@ -36,35 +36,6 @@ void apply_changes(GameData *game, MovementData const *data)
     game->currentTetrimino = data->target;
 }
 
-bool is_self(int const target, int const sourceIndices[])
-{
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        if (sourceIndices[i] == target)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void move_tetrimino(GameData *game, atomic_int *command)
-{
-    Command inputCommand = (Command)atomic_load_explicit(command,
-                                                         memory_order_acquire);
-    if (!inputCommand)
-    {
-        return;
-    }
-
-    validate_and_move(game, inputCommand);
-
-    atomic_store_explicit(command,
-                          (int)Command_doNothing,
-                          memory_order_release);
-}
-
 void indices_for(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->type)
@@ -102,6 +73,35 @@ void indices_for(Tetrimino const *tetrimino, int indices[])
     }
 }
 
+bool is_self(int const target, int const sourceIndices[])
+{
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        if (sourceIndices[i] == target)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void move_tetrimino(GameData *game, atomic_int *command)
+{
+    Command inputCommand = (Command)atomic_load_explicit(command,
+                                                         memory_order_acquire);
+    if (!inputCommand)
+    {
+        return;
+    }
+
+    validate_and_move(game, inputCommand);
+
+    atomic_store_explicit(command,
+                          (int)Command_doNothing,
+                          memory_order_release);
+}
+
 static void indices_for_light_blue(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->orientation)
@@ -133,41 +133,6 @@ static void indices_for_dark_blue(Tetrimino const *tetrimino, int indices[])
         case North:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid + 1;
-            indices[2] = tetrimino->centroid + 1 + PLAYFIELD_COLUMNS;
-            indices[3] = tetrimino->centroid - 1;
-            return;
-
- 
-        case East:
-            indices[0] = tetrimino->centroid;
-            indices[1] = tetrimino->centroid + PLAYFIELD_COLUMNS;
-            indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS;
-            indices[3] = tetrimino->centroid - PLAYFIELD_COLUMNS + 1;
-            return;
-
-        case South:
-            indices[0] = tetrimino->centroid;
-            indices[1] = tetrimino->centroid + 1;
-            indices[2] = tetrimino->centroid - 1;
-            indices[3] = tetrimino->centroid - 1 - PLAYFIELD_COLUMNS;
-        return;
-
-        case West:
-            indices[0] = tetrimino->centroid;
-            indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
-            indices[2] = tetrimino->centroid + PLAYFIELD_COLUMNS;
-            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS - 1;
-        return;
-    }
-}
-
-static void indices_for_orange(Tetrimino const *tetrimino, int indices[])
-{
-    switch (tetrimino->orientation)
-    {
-        case North:
-            indices[0] = tetrimino->centroid;
-            indices[1] = tetrimino->centroid + 1;
             indices[2] = tetrimino->centroid - 1;
             indices[3] = tetrimino->centroid - 1 + PLAYFIELD_COLUMNS;
             return;
@@ -192,6 +157,41 @@ static void indices_for_orange(Tetrimino const *tetrimino, int indices[])
             indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
             indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS - 1;
             indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS;
+        return;
+    }
+}
+
+static void indices_for_orange(Tetrimino const *tetrimino, int indices[])
+{
+    switch (tetrimino->orientation)
+    {
+        case North:
+            indices[0] = tetrimino->centroid;
+            indices[1] = tetrimino->centroid + 1;
+            indices[2] = tetrimino->centroid + 1 + PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid - 1;
+            return;
+
+ 
+        case East:
+            indices[0] = tetrimino->centroid;
+            indices[1] = tetrimino->centroid + PLAYFIELD_COLUMNS;
+            indices[2] = tetrimino->centroid - PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid - PLAYFIELD_COLUMNS + 1;
+            return;
+
+        case South:
+            indices[0] = tetrimino->centroid;
+            indices[1] = tetrimino->centroid + 1;
+            indices[2] = tetrimino->centroid - 1;
+            indices[3] = tetrimino->centroid - 1 - PLAYFIELD_COLUMNS;
+        return;
+
+        case West:
+            indices[0] = tetrimino->centroid;
+            indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
+            indices[2] = tetrimino->centroid + PLAYFIELD_COLUMNS;
+            indices[3] = tetrimino->centroid + PLAYFIELD_COLUMNS - 1;
         return;
     }
 }
@@ -328,3 +328,4 @@ static void validate_and_move(GameData *game, Command const command)
             return;
     }
 }
+

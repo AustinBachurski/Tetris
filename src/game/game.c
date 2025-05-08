@@ -19,20 +19,27 @@
     #define INTERNAL static
 #endif
 
+static void bulk_line_clear(GameData *game, int const indices[], int const size);
 INTERNAL void clear_playfield(GameData *game);
+static void check_and_clear_lines(GameData *game);
+static void clear_lines(GameData *game, int const rows[], int const size);
 static void cycle_in_next_tetrimino(GameData *game);
 static void game_loop(GameData *game, InputHandles *input, FrameTime *times);
-[[nodiscard]] INTERNAL bool is_game_over(GameData *game);
 static TetriminoColor get_next_tetrimino(TetriminoColor bag[]);
 static void initialize_game(GameData *game);
 static void initialize_input(InputHandles *input);
 static void initialize_time(FrameTime *times);
+[[nodiscard]] INTERNAL bool is_game_over(GameData const *game);
 [[nodiscard]] static bool is_time_for_gravity(GameData *game);
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
 static void new_game(GameData *game, InputHandles *input);
-static TetriminoColor only_one_remains(TetriminoColor bag[]);
+static TetriminoColor only_one_remains(TetriminoColor const bag[]);
 static void place_tetrimino(GameData *game);
 INTERNAL void reset_bag(TetriminoColor bag[]);
+static bool rows_are_contiguous(int const rows[], int const size);
+[[nodiscard]] static bool should_be_cleared(int const rowIndex,
+                                            TetriminoColor const playfield[]);
+static void single_line_clear(GameData *game, int const index);
 static void sleep_for(FrameTime *times);
 [[nodiscard]] static int spawnpoint_for(TetriminoColor const color);
 static void wait_for_keypress(GameData *game);
@@ -52,9 +59,71 @@ void play_tetris(void)
     exit_game(0);
 }
 
+static void bulk_line_clear(GameData *game, int const lines[], int const size)
+{
+    int const sourceIndex = lines[size - 1] + PLAYFIELD_COLUMNS;
+
+    TetriminoColor *const dest = &game->playfield[lines[0]];
+    TetriminoColor *const source = &game->playfield[sourceIndex];
+
+    memmove(dest,
+            source,
+            (unsigned int)
+            (PLAYFIELD_SIZE - sourceIndex) * sizeof(TetriminoColor));
+
+    memset(&game->playfield[PLAYFIELD_SIZE - (PLAYFIELD_COLUMNS * size)],
+           (char)Tetrimino_empty,
+           (unsigned long)(PLAYFIELD_COLUMNS * size) * sizeof(TetriminoColor));
+}
+
 INTERNAL void clear_playfield(GameData *game)
 {
     memset(game->playfield, 0, PLAYFIELD_SIZE * sizeof(TetriminoColor));
+}
+
+static void check_and_clear_lines(GameData *game)
+{
+    int index = 0;
+    int rowsIndicesToClear[SQUARES_PER_TETRIMINO];
+    int size = 0;
+
+    for (int rowBase = 0; rowBase < PLAYFIELD_ROWS; ++rowBase)
+    {
+        index = rowBase * PLAYFIELD_COLUMNS;
+        if (should_be_cleared(index, game->playfield))
+        {
+            rowsIndicesToClear[size++] = index;
+        }
+    }
+
+    if (!size)
+    {
+        return;
+    }
+
+    clear_lines(game, rowsIndicesToClear, size);
+    animate_lines(game, rowsIndicesToClear, size);
+
+    // Framerate limit sleep occurs before the next redraw.  At times,
+    // the clear animation would appear to hang at the last step until
+    // the sleep returned and playfield was redrawn. Redrawing immediately
+    // after the line clear animation prevents this.
+    draw_playfield(game);
+}
+
+static void clear_lines(GameData *game, int const rows[], int const size)
+{
+    if (size > 1 && rows_are_contiguous(rows, size))
+    {
+        bulk_line_clear(game, rows, size);
+    }
+    else
+    {
+        for (int i = size - 1; i >= 0; --i)
+        {
+            single_line_clear(game, rows[i]);
+        }
+    }
 }
 
 static void cycle_in_next_tetrimino(GameData *game)
@@ -77,6 +146,8 @@ static void game_loop(GameData *game, InputHandles *input, FrameTime *times)
         {
             if (!gravity_down(game))
             {
+                check_and_clear_lines(game);
+
                 if (!is_game_over(game))
                 {
                     cycle_in_next_tetrimino(game);
@@ -122,26 +193,6 @@ static TetriminoColor get_next_tetrimino(TetriminoColor bag[])
     return selection;
 }
 
-static bool is_time_for_gravity(GameData *game)
-{
-    struct timeval now;
-    gettimeofday(&now, NULL);
-
-    long deltaSeconds = now.tv_sec - game->dropTime.tv_sec;
-    long deltaMicroseconds = now.tv_usec - game->dropTime.tv_usec;
-
-    long deltaTime = deltaSeconds * MICROSECONDS_PER_SECOND + deltaMicroseconds;
-    float moveTime = MICROSECONDS_PER_SECOND * game->difficulty;
-
-    if ((float)deltaTime >= moveTime)
-    {
-        gettimeofday(&game->dropTime, NULL);
-        return true;
-    }
-
-    return false;
-}
-
 static void initialize_game(GameData *game)
 {
     srand((unsigned int)time(NULL));
@@ -172,6 +223,41 @@ static void initialize_time(FrameTime *times)
     times->delta.tv_nsec = 0;
 }
 
+INTERNAL bool is_game_over(GameData const *game)
+{
+    int indices[SQUARES_PER_TETRIMINO];
+    indices_for(&game->nextTetrimino, indices);
+
+    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
+    {
+        if (Tetrimino_empty != game->playfield[indices[i]])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool is_time_for_gravity(GameData *game)
+{
+    struct timeval now;
+    gettimeofday(&now, NULL);
+
+    long deltaSeconds = now.tv_sec - game->dropTime.tv_sec;
+    long deltaMicroseconds = now.tv_usec - game->dropTime.tv_usec;
+
+    long deltaTime = deltaSeconds * MICROSECONDS_PER_SECOND + deltaMicroseconds;
+    float moveTime = MICROSECONDS_PER_SECOND * game->difficulty;
+
+    if ((float)deltaTime >= moveTime)
+    {
+        gettimeofday(&game->dropTime, NULL);
+        return true;
+    }
+
+    return false;
+}
+
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[])
 {
     TetriminoColor const color = get_next_tetrimino(bag);
@@ -192,7 +278,7 @@ static void new_game(GameData *game, InputHandles *input)
                           memory_order_release);
 }
 
-static TetriminoColor only_one_remains(TetriminoColor bag[])
+static TetriminoColor only_one_remains(TetriminoColor const bag[])
 {
     TetriminoColor selection = Tetrimino_empty;
 
@@ -231,6 +317,50 @@ INTERNAL void reset_bag(TetriminoColor bag[])
     }
 }
 
+static bool rows_are_contiguous(int const rows[], int const size)
+{
+    int compare = rows[0];
+
+    for (int i = 1; i < size; ++i)
+    {
+        if (rows[i] != (compare += PLAYFIELD_COLUMNS))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool should_be_cleared(int const rowIndex,
+                              TetriminoColor const playfield[])
+{
+    for (int column = 0; column < PLAYFIELD_COLUMNS; ++column)
+    {
+        if (Tetrimino_empty == playfield[rowIndex + column])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static void single_line_clear(GameData *game, int const index)
+{
+    if (index != PLAYFIELD_SIZE - PLAYFIELD_COLUMNS)
+    {
+        memmove(&game->playfield[index],
+                &game->playfield[index + PLAYFIELD_COLUMNS],
+                (unsigned int) (PLAYFIELD_SIZE - PLAYFIELD_COLUMNS - index)
+                    * sizeof(TetriminoColor));
+    }
+
+    memset(&game->playfield[PLAYFIELD_SIZE - PLAYFIELD_COLUMNS],
+           (char)Tetrimino_empty,
+           PLAYFIELD_COLUMNS * sizeof(TetriminoColor));
+}
+
 static void sleep_for(FrameTime *times)
 {
     gettimeofday(&times->loopEnd, NULL);
@@ -246,21 +376,6 @@ static void sleep_for(FrameTime *times)
     }
 
     gettimeofday(&times->loopStart, NULL);
-}
-
-INTERNAL bool is_game_over(GameData *game)
-{
-    int indices[SQUARES_PER_TETRIMINO];
-    indices_for(&game->nextTetrimino, indices);
-
-    for (int i = 0; i < SQUARES_PER_TETRIMINO; ++i)
-    {
-        if (Tetrimino_empty != game->playfield[indices[i]])
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 static int spawnpoint_for(TetriminoColor const color)
