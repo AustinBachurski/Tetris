@@ -27,8 +27,10 @@ typedef struct GameData
     Tetrimino nextTetrimino;
     TetriminoColor randomBag[TETRIMINO_COUNT];
     TetriminoColor playfield[PLAYFIELD_SIZE];
-    float difficulty;
     struct timeval dropTime;
+    int level;
+    int lines;
+    int score;
 } GameData;
 
 typedef struct FrameTime

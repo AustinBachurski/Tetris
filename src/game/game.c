@@ -42,6 +42,8 @@ static bool rows_are_contiguous(int const rows[], int const size);
 static void single_line_clear(GameData *game, int const index);
 static void sleep_for(FrameTime *times);
 [[nodiscard]] static int spawnpoint_for(TetriminoColor const color);
+static float time_ratio(int const level);
+static void update_score(GameData *game, int const lines);
 static void wait_for_keypress(GameData *game);
 
 void play_tetris(void)
@@ -85,30 +87,31 @@ static void check_and_clear_lines(GameData *game)
 {
     int index = 0;
     int rowsIndicesToClear[SQUARES_PER_TETRIMINO];
-    int size = 0;
+    int linesToClear = 0;
 
     for (int rowBase = 0; rowBase < PLAYFIELD_ROWS; ++rowBase)
     {
         index = rowBase * PLAYFIELD_COLUMNS;
         if (should_be_cleared(index, game->playfield))
         {
-            rowsIndicesToClear[size++] = index;
+            rowsIndicesToClear[linesToClear++] = index;
         }
     }
 
-    if (!size)
+    if (!linesToClear)
     {
         return;
     }
 
-    clear_lines(game, rowsIndicesToClear, size);
-    animate_lines(game, rowsIndicesToClear, size);
+    update_score(game, linesToClear);
+    clear_lines(game, rowsIndicesToClear, linesToClear);
+    animate_lines(game, rowsIndicesToClear, linesToClear);
 
     // Framerate limit sleep occurs before the next redraw.  At times,
     // the clear animation would appear to hang at the last step until
     // the sleep returned and playfield was redrawn. Redrawing immediately
     // after the line clear animation prevents this.
-    draw_playfield(game);
+    update_screen(game);
 }
 
 static void clear_lines(GameData *game, int const rows[], int const size)
@@ -139,7 +142,7 @@ static void game_loop(GameData *game, InputHandles *input, FrameTime *times)
 {
     while (true)
     {
-        draw_playfield(game);
+        update_screen(game);
         move_tetrimino(game, &input->command);
 
         if (is_time_for_gravity(game))
@@ -152,13 +155,19 @@ static void game_loop(GameData *game, InputHandles *input, FrameTime *times)
                 {
                     cycle_in_next_tetrimino(game);
                 }
-                else if (play_again(game, input))
+                else 
                 {
-                    new_game(game, input);
-                }
-                else
-                {
-                    break;
+                    cycle_in_next_tetrimino(game);
+                    update_screen(game);
+
+                    if (play_again(game, input))
+                    {
+                        new_game(game, input);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -198,7 +207,9 @@ static void initialize_game(GameData *game)
     srand((unsigned int)time(NULL));
     reset_bag(game->randomBag);
     game->nextTetrimino = make_random_tetrimino(game->randomBag);
-    game->difficulty = 1.0;
+    game->level = 0;
+    game->lines = 0;
+    game->score = 0;
 
     clear_playfield(game);
     initialize_ui(game);
@@ -247,7 +258,7 @@ static bool is_time_for_gravity(GameData *game)
     long deltaMicroseconds = now.tv_usec - game->dropTime.tv_usec;
 
     long deltaTime = deltaSeconds * MICROSECONDS_PER_SECOND + deltaMicroseconds;
-    float moveTime = MICROSECONDS_PER_SECOND * game->difficulty;
+    float moveTime = MICROSECONDS_PER_SECOND * time_ratio(game->level);
 
     if ((float)deltaTime >= moveTime)
     {
@@ -409,6 +420,123 @@ static int spawnpoint_for(TetriminoColor const color)
     }
 
     return -1;
+}
+
+static float time_ratio(int const level)
+{
+    switch (level)
+    {
+        case 0:
+            return .7987f;
+
+        case 1:
+            return .7155f;
+
+        case 2:
+            return .6323f;
+
+        case 3:
+            return .5491f;
+
+        case 4:
+            return .4659f;
+
+        case 5:
+            return .3827f;
+
+        case 6:
+            return .2995f;
+
+        case 7:
+            return .2163f;
+
+        case 8:
+            return .1331f;
+
+        case 9:
+            return .09985f;
+
+        case 10:
+            [[fallthrough]];
+        case 11:
+            [[fallthrough]];
+        case 12:
+            return .0832f;
+
+        case 13:
+            [[fallthrough]];
+        case 14:
+            [[fallthrough]];
+        case 15:
+            return .06655f;
+
+        case 16:
+            [[fallthrough]];
+        case 17:
+            [[fallthrough]];
+        case 18:
+            return .0499f;
+
+        case 19:
+            [[fallthrough]];
+        case 20:
+            [[fallthrough]];
+        case 21:
+            [[fallthrough]];
+        case 22:
+            [[fallthrough]];
+        case 23:
+            [[fallthrough]];
+        case 24:
+            [[fallthrough]];
+        case 25:
+            [[fallthrough]];
+        case 26:
+            [[fallthrough]];
+        case 27:
+            [[fallthrough]];
+        case 28:
+            return .0333f;
+    }
+
+    return .01665f;
+}
+
+static int calculate_score(int const base, int const level)
+{
+    if (level < 10)
+    {
+        return base + base * level;
+    }
+    else
+{
+        return base * (level + 1);
+    }
+}
+
+static void update_score(GameData *game, int const linesToClear)
+{
+    switch(linesToClear)
+    {
+        case 1:
+            game->score += calculate_score(40, game->level);
+            break;
+
+        case 2:
+            game->score += calculate_score(100, game->level);
+            break;
+
+        case 3:
+            game->score += calculate_score(300, game->level);
+            break;
+
+        case 4:
+            game->score += calculate_score(1200, game->level);
+            break;
+    }
+
+    game->lines += linesToClear;
+    game->level = game->lines / 10 + 1;
 }
 
 static void wait_for_keypress(GameData *game)

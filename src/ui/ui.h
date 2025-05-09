@@ -10,15 +10,18 @@ typedef struct InputHandles InputHandles;
 typedef struct GameUI
 {
     WINDOW *playfieldWindow;
+    WINDOW *scoreWindow;
+    WINDOW *linesWindow;
     WINDOW *previewWindow;
+    WINDOW *levelWindow;
 } GameUI;
 
 void animate_lines(GameData *game, int const rows[], int const size);
-void draw_playfield(GameData *game);
 void exit_game(int const code);
 void initialize_ui(GameData *game);
 [[nodiscard]] bool play_again(GameData *game, InputHandles *input);
 void set_preview(GameData *game);
+void update_screen(GameData *game);
 
 #endif
 
