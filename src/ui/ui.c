@@ -200,7 +200,7 @@ void update_screen(GameData *game)
 
     mvwprintw(game->ui.scoreWindow, 1, 2, "%07d", game->score);
     mvwprintw(game->ui.linesWindow, 1, 4, "%03d", game->lines);
-    mvwprintw(game->ui.levelWindow, 1, 3, "%02d", game->level);
+    mvwprintw(game->ui.levelWindow, 1, 3, "%03d", game->level);
 
     wrefresh(game->ui.playfieldWindow);
     wrefresh(game->ui.scoreWindow);

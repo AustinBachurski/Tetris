@@ -536,7 +536,7 @@ static void update_score(GameData *game, int const linesToClear)
     }
 
     game->lines += linesToClear;
-    game->level = game->lines / 10 + 1;
+    game->level = game->lines / 10;
 }
 
 static void wait_for_keypress(GameData *game)
