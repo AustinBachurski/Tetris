@@ -51,7 +51,7 @@ static void empty_test_bag(TetriminoColor testBag[], bool resultsBag[])
         int index = ((int)result.type) - 1;
 
         TEST_ASSERT_MESSAGE(!resultsBag[index],
-                            "resultsBag is not all false prior to test.");
+                            "Duplicate tetrimino retrieved.");
 
         resultsBag[index] = true;
     }

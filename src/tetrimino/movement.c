@@ -1,12 +1,12 @@
 #include "movement.h"
 
-#include "gamesettings.h"
 #include "movedown.h"
 #include "moveleft.h"
 #include "moveright.h"
 #include "rotation.h"
 #include "tetrimino.h"
 #include "../game/game.h"
+#include "../game/gamesettings.h"
 
 #include <stdatomic.h>
 

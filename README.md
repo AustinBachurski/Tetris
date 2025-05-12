@@ -43,8 +43,18 @@ I wanted to improve my skills in C and GDB so I wrote this classic Tetris clone 
 
 ## Basic Build Instructions
 
+### Building with Unit Tests
+
 1. Clone this repo.
-1. Set up a build directory for CMake. `cmake -B build`
+1. Configure CMake. `cmake -B build -S . -DRUN_TESTS=YES`
+1. Build the project. `cmake --build build`
+1. Run the unit tests. `ctest --test-dir build --output-on-failure`
+1. Play the game. `./build/tetris`
+
+### Building without Unit Tests
+
+1. Clone this repo.
+1. Configure CMake. `cmake -B build -S .`
 1. Build the project. `cmake --build build`
 1. Play the game. `./build/tetris`
 
