@@ -1,6 +1,6 @@
-# Yet Another Tetris Clone
+# Terminal Tetris Clone
 
-I wanted to improve my skills in C and GDB so I wrote this classic Tetris clone that runs in the console, written in C using ncurses.  Plays best with a high key repeat rate and low repeat delay.
+I wanted to improve my skills in C and GDB so I wrote this classic Tetris clone that runs in the terminal, written in C using ncurses.  Plays best with a high key repeat rate and low repeat delay.
 
 ![Tetris Animated Gif](screenshots/tetris.gif)
 
