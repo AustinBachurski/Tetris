@@ -5,7 +5,7 @@
 //#include "tetrimino/moveleft.h"
 //#include "tetrimino/moveright.h"
 #include "randombag/randombag.h"
-//#include "playfield/spawntetrimino.h"
+#include "placement/placement.h"
 
 void setUp(void)
 { }
@@ -19,14 +19,14 @@ int main(void)
 
     RUN_TEST(random_bag_produces_complete_set);
 
-    // RUN_TEST(spawn_light_blue_tetrimino);
-    // RUN_TEST(spawn_dark_blue_tetrimino);
-    // RUN_TEST(spawn_orange_tetrimino);
-    // RUN_TEST(spawn_yellow_tetrimino);
-    // RUN_TEST(spawn_green_tetrimino);
-    // RUN_TEST(spawn_red_tetrimino);
-    // RUN_TEST(spawn_magenta_tetrimino);
-// 
+    RUN_TEST(place_light_blue_tetrimino);
+    RUN_TEST(place_dark_blue_tetrimino);
+    RUN_TEST(place_orange_tetrimino);
+    RUN_TEST(place_yellow_tetrimino);
+    RUN_TEST(place_green_tetrimino);
+    RUN_TEST(place_red_tetrimino);
+    RUN_TEST(place_magenta_tetrimino);
+
     // RUN_TEST(light_blue_tetrimino_gravity_down);
     // RUN_TEST(dark_blue_tetrimino_gravity_down);
     // RUN_TEST(orange_tetrimino_gravity_down);

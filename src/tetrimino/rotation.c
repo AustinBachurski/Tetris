@@ -3,6 +3,7 @@
 #include "movement.h"
 #include "../game/game.h"
 #include "../game/gamesettings.h"
+#include "../ui/ui.h"
 
 #include <stdlib.h>
 
@@ -70,6 +71,9 @@ static void set_rotation_value(Tetrimino *tetrimino)
             tetrimino->orientation = North;
             return;
     }
+
+    fatal_exit("Unexpected value received in switch statement.");
+    abort();
 }
 
 static bool through_the_wall(MovementData const *data)

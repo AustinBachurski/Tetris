@@ -4,7 +4,7 @@
 #include "../../src/game/game.h"
 
 [[nodiscard]] bool correct_spaces_occupied(GameData* game, int const indices[]);
-void shift_indices_down(int indices[]);
+[[nodiscard]] bool playfield_is_empty(GameData* game);
 
 #endif
 

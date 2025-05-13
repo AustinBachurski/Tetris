@@ -4,6 +4,8 @@ find_package(Curses REQUIRED)
 
 add_executable(tetris)
 
+target_compile_options(tetris PRIVATE -O3)
+
 target_sources(tetris PRIVATE
     main.c
     game/game.c
@@ -15,8 +17,6 @@ target_sources(tetris PRIVATE
     tetrimino/rotation.c
     ui/ui.c
 )
-
-target_compile_options(tetris PRIVATE -O3)
 
 target_include_directories(tetris PRIVATE
     game

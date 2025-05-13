@@ -34,14 +34,14 @@ static void initialize_time(FrameTime *times);
 INTERNAL Tetrimino make_random_tetrimino(TetriminoColor bag[]);
 static void new_game(GameData *game, InputHandles *input);
 static TetriminoColor only_one_remains(TetriminoColor const bag[]);
-static void place_tetrimino(GameData *game);
+INTERNAL void place_tetrimino(GameData *game);
 INTERNAL void reset_bag(TetriminoColor bag[]);
 static bool rows_are_contiguous(int const rows[], int const size);
 [[nodiscard]] static bool should_be_cleared(int const rowIndex,
                                             TetriminoColor const playfield[]);
 static void single_line_clear(GameData *game, int const index);
 static void sleep_for(FrameTime *times);
-[[nodiscard]] static int spawnpoint_for(TetriminoColor const color);
+[[nodiscard]] INTERNAL int spawnpoint_for(TetriminoColor const color);
 static float time_ratio(int const level);
 static void update_score(GameData *game, int const lines);
 static void wait_for_keypress(GameData *game);
@@ -58,7 +58,7 @@ void play_tetris(void)
 
     game_loop(&game, &input, &times);
 
-    exit_game(0);
+    exit_game();
 }
 
 static void bulk_line_clear(GameData *game, int const lines[], int const size)
@@ -309,7 +309,7 @@ static TetriminoColor only_one_remains(TetriminoColor const bag[])
     return selection;
 }
 
-static void place_tetrimino(GameData *game)
+INTERNAL void place_tetrimino(GameData *game)
 {
     int indices[SQUARES_PER_TETRIMINO];
     indices_for(&game->currentTetrimino, indices);
@@ -389,12 +389,11 @@ static void sleep_for(FrameTime *times)
     gettimeofday(&times->loopStart, NULL);
 }
 
-static int spawnpoint_for(TetriminoColor const color)
+INTERNAL int spawnpoint_for(TetriminoColor const color)
 {
     switch (color)
     {
         case Tetrimino_empty:
-            // TODO: Should never happen.
             break;
 
         case Tetrimino_lightBlue:
@@ -419,7 +418,8 @@ static int spawnpoint_for(TetriminoColor const color)
             return MAGENTA_SPAWNPOINT;
     }
 
-    return -1;
+    fatal_exit("Unexpected value received in switch statement.");
+    abort();
 }
 
 static float time_ratio(int const level)
@@ -456,45 +456,30 @@ static float time_ratio(int const level)
         case 9:
             return .09985f;
 
-        case 10:
-            [[fallthrough]];
-        case 11:
-            [[fallthrough]];
+        case 10: [[fallthrough]];
+        case 11: [[fallthrough]];
         case 12:
             return .0832f;
 
-        case 13:
-            [[fallthrough]];
-        case 14:
-            [[fallthrough]];
+        case 13: [[fallthrough]];
+        case 14: [[fallthrough]];
         case 15:
             return .06655f;
 
-        case 16:
-            [[fallthrough]];
-        case 17:
-            [[fallthrough]];
+        case 16: [[fallthrough]];
+        case 17: [[fallthrough]];
         case 18:
             return .0499f;
 
-        case 19:
-            [[fallthrough]];
-        case 20:
-            [[fallthrough]];
-        case 21:
-            [[fallthrough]];
-        case 22:
-            [[fallthrough]];
-        case 23:
-            [[fallthrough]];
-        case 24:
-            [[fallthrough]];
-        case 25:
-            [[fallthrough]];
-        case 26:
-            [[fallthrough]];
-        case 27:
-            [[fallthrough]];
+        case 19: [[fallthrough]];
+        case 20: [[fallthrough]];
+        case 21: [[fallthrough]];
+        case 22: [[fallthrough]];
+        case 23: [[fallthrough]];
+        case 24: [[fallthrough]];
+        case 25: [[fallthrough]];
+        case 26: [[fallthrough]];
+        case 27: [[fallthrough]];
         case 28:
             return .0333f;
     }

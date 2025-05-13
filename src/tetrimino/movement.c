@@ -7,8 +7,10 @@
 #include "tetrimino.h"
 #include "../game/game.h"
 #include "../game/gamesettings.h"
+#include "../ui/ui.h"
 
 #include <stdatomic.h>
+#include <stdlib.h>
 
 static void indices_for_light_blue(Tetrimino const *tetrimino, int indices[]);
 static void indices_for_dark_blue(Tetrimino const *tetrimino, int indices[]);
@@ -41,7 +43,7 @@ void indices_for(Tetrimino const *tetrimino, int indices[])
     switch (tetrimino->type)
     {
         case Tetrimino_empty:
-            return;
+            break;
 
         case Tetrimino_lightBlue:
             indices_for_light_blue(tetrimino, indices);
@@ -71,6 +73,9 @@ void indices_for(Tetrimino const *tetrimino, int indices[])
             indices_for_magenta(tetrimino, indices);
             return;
     }
+
+    fatal_exit("Unexpected value received in switch statement.");
+    abort();
 }
 
 bool is_self(int const target, int const sourceIndices[])
@@ -106,8 +111,7 @@ static void indices_for_light_blue(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->orientation)
     {
-        case North:
-            [[fallthrough]];
+        case North: [[fallthrough]];
         case South:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - 1;
@@ -115,8 +119,7 @@ static void indices_for_light_blue(Tetrimino const *tetrimino, int indices[])
             indices[3] = tetrimino->centroid + 1;
         return;
 
-        case East:
-            [[fallthrough]];
+        case East: [[fallthrough]];
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
@@ -200,12 +203,9 @@ static void indices_for_yellow(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->orientation)
     {
-        case North:
-            [[fallthrough]];
-        case East:
-            [[fallthrough]];
-        case South:
-            [[fallthrough]];
+        case North: [[fallthrough]];
+        case East:  [[fallthrough]];
+        case South: [[fallthrough]];
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - 1;
@@ -219,8 +219,7 @@ static void indices_for_green(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->orientation)
     {
-        case North:
-            [[fallthrough]];
+        case North: [[fallthrough]];
         case South:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid + 1;
@@ -229,8 +228,7 @@ static void indices_for_green(Tetrimino const *tetrimino, int indices[])
             return;
 
  
-        case East:
-            [[fallthrough]];
+        case East: [[fallthrough]];
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid + PLAYFIELD_COLUMNS;
@@ -244,8 +242,7 @@ static void indices_for_red(Tetrimino const *tetrimino, int indices[])
 {
     switch (tetrimino->orientation)
     {
-        case North:
-            [[fallthrough]];
+        case North: [[fallthrough]];
         case South:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - 1;
@@ -254,8 +251,7 @@ static void indices_for_red(Tetrimino const *tetrimino, int indices[])
             return;
 
  
-        case East:
-            [[fallthrough]];
+        case East: [[fallthrough]];
         case West:
             indices[0] = tetrimino->centroid;
             indices[1] = tetrimino->centroid - PLAYFIELD_COLUMNS;
@@ -304,10 +300,8 @@ static void validate_and_move(GameData *game, Command const command)
 {
     switch (command)
     {
-        case Command_doNothing:
-            [[fallthrough]];
-        case Command_playAgain:
-            [[fallthrough]];
+        case Command_doNothing: [[fallthrough]];
+        case Command_playAgain: [[fallthrough]];
         case Command_quit:
             return;
 

@@ -17,7 +17,8 @@ typedef struct GameUI
 } GameUI;
 
 void animate_lines(GameData *game, int const rows[], int const size);
-void exit_game(int const code);
+void exit_game();
+void fatal_exit(char const *reason);
 void initialize_ui(GameData *game);
 [[nodiscard]] bool play_again(GameData *game, InputHandles *input);
 void set_preview(GameData *game);

@@ -41,9 +41,18 @@ void animate_lines(GameData *game, int const rows[], int const size)
     }
 }
 
-void exit_game(int code)
+void exit_game()
 {
-    cleanup_and_exit(code);
+    cleanup_and_exit(0);
+}
+
+void fatal_exit(char const *reason)
+{
+    endwin();
+
+    fprintf(stderr, "Fatal Error: %s\n", reason);
+
+    exit(EXIT_FAILURE);
 }
 
 void initialize_ui(GameData *game)
@@ -60,7 +69,7 @@ void initialize_ui(GameData *game)
         endwin();
         printw("256-color mode not supported.");
         getch();
-        exit_game(1);
+        exit_game();
     }
     
     initialize_colors();
@@ -115,64 +124,58 @@ void set_preview(GameData *game)
     switch (game->nextTetrimino.type)
     {
         case Tetrimino_empty:
-            // TODO: Should never happen.
             return;
 
         case Tetrimino_lightBlue:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_lightBlue));
             mvwprintw(game->ui.previewWindow, 2, 2, "        ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_lightBlue));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
 
         case Tetrimino_darkBlue:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_darkBlue));
             mvwprintw(game->ui.previewWindow, 2, 3, "  ");
             mvwprintw(game->ui.previewWindow, 3, 3, "      ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_darkBlue));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
 
         case Tetrimino_orange:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_orange));
             mvwprintw(game->ui.previewWindow, 2, 7, "  ");
             mvwprintw(game->ui.previewWindow, 3, 3, "      ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_orange));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
 
         case Tetrimino_yellow:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_yellow));
             mvwprintw(game->ui.previewWindow, 2, 4, "    ");
             mvwprintw(game->ui.previewWindow, 3, 4, "    ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_yellow));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
 
         case Tetrimino_red:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_red));
             mvwprintw(game->ui.previewWindow, 2, 3, "    ");
             mvwprintw(game->ui.previewWindow, 3, 5, "    ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_red));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
 
         case Tetrimino_green:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_green));
             mvwprintw(game->ui.previewWindow, 2, 5, "    ");
             mvwprintw(game->ui.previewWindow, 3, 3, "    ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_green));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
 
         case Tetrimino_magenta:
             wattron(game->ui.previewWindow, COLOR_PAIR(Tetrimino_magenta));
             mvwprintw(game->ui.previewWindow, 2, 5, "  ");
             mvwprintw(game->ui.previewWindow, 3, 3, "      ");
             wattroff(game->ui.previewWindow, COLOR_PAIR(Tetrimino_magenta));
-            wrefresh(game->ui.previewWindow);
-            return;
+            break;
     }
+
+    wrefresh(game->ui.previewWindow);
 }
 
 void update_screen(GameData *game)
