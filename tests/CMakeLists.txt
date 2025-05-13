@@ -53,5 +53,5 @@ target_include_directories(tetris_tests PRIVATE
 target_link_options(tetris_tests PRIVATE -fsanitize=address)
 target_link_libraries(tetris_tests PRIVATE ${CURSES_LIBRARIES})
 
-add_test("Tetris Unit Tests" tetris_tests)
+add_test("Tetris Unit Tests" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tetris_tests)
 
