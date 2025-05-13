@@ -6,6 +6,7 @@
 //#include "tetrimino/moveright.h"
 #include "randombag/randombag.h"
 #include "placement/placement.h"
+#include "rotation/rotation.h"
 
 void setUp(void)
 { }
@@ -26,6 +27,14 @@ int main(void)
     RUN_TEST(place_green_tetrimino);
     RUN_TEST(place_red_tetrimino);
     RUN_TEST(place_magenta_tetrimino);
+
+    RUN_TEST(rotate_light_blue_tetrimino);
+    RUN_TEST(rotate_dark_blue_tetrimino);
+    RUN_TEST(rotate_orange_tetrimino);
+    RUN_TEST(rotate_yellow_tetrimino);
+    RUN_TEST(rotate_green_tetrimino);
+    RUN_TEST(rotate_red_tetrimino);
+    RUN_TEST(rotate_magenta_tetrimino);
 
     // RUN_TEST(light_blue_tetrimino_gravity_down);
     // RUN_TEST(dark_blue_tetrimino_gravity_down);

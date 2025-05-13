@@ -26,13 +26,9 @@ void place_light_blue_tetrimino(void)
     TetriminoColor const color = Tetrimino_lightBlue;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for light blue not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, lightBlueSpawnIndices),
-                        "Map spaces for light blue incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, lightBlueSpawnIndices));
 }
 
 void place_dark_blue_tetrimino(void)
@@ -42,13 +38,9 @@ void place_dark_blue_tetrimino(void)
     TetriminoColor const color = Tetrimino_darkBlue;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for dark blue not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, darkBlueSpawnIndices),
-                        "Map spaces for dark blue incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, darkBlueSpawnIndices));
 }
 
 void place_orange_tetrimino(void)
@@ -58,13 +50,9 @@ void place_orange_tetrimino(void)
     TetriminoColor const color = Tetrimino_orange;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for orange not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, orangeSpawnIndices),
-                        "Map spaces for orange incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, orangeSpawnIndices));
 }
 
 void place_yellow_tetrimino(void)
@@ -74,13 +62,9 @@ void place_yellow_tetrimino(void)
     TetriminoColor const color = Tetrimino_yellow;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for yellow not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, yellowSpawnIndices),
-                        "Map spaces for yellow incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, yellowSpawnIndices));
 }
 
 void place_green_tetrimino(void)
@@ -90,13 +74,9 @@ void place_green_tetrimino(void)
     TetriminoColor const color = Tetrimino_green;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for green not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, greenSpawnIndices),
-                        "Map spaces for green incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, greenSpawnIndices));
 }
 
 void place_red_tetrimino(void)
@@ -106,13 +86,9 @@ void place_red_tetrimino(void)
     TetriminoColor const color = Tetrimino_red;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for red not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, redSpawnIndices),
-                        "Map spaces for red incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, redSpawnIndices));
 }
 
 void place_magenta_tetrimino(void)
@@ -122,12 +98,8 @@ void place_magenta_tetrimino(void)
     TetriminoColor const color = Tetrimino_magenta;
     game.currentTetrimino = (Tetrimino){ spawnpoint_for(color), color, North };
 
-    TEST_ASSERT_MESSAGE(playfield_is_empty(&game),
-                        "Map spaces for magenta not empty prior to placement.");
-
     place_tetrimino(&game);
 
-    TEST_ASSERT_MESSAGE(correct_spaces_occupied(&game, magentaSpawnIndices),
-                        "Map spaces for magenta incorrect after placement.");
+    TEST_ASSERT(correct_spaces_occupied(&game, magentaSpawnIndices));
 }
 

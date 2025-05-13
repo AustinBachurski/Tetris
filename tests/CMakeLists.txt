@@ -18,6 +18,7 @@ target_sources(tetris_tests PRIVATE
     unity/unity.c
     randombag/randombag.c
     placement/placement.c
+    rotation/rotation.c
     utilities/utilities.c
 )
 
@@ -25,7 +26,7 @@ target_include_directories(tetris_tests PRIVATE
     unity
     randombag
     placement
-    tetrimino
+    rotation
     utilities
 )
 
