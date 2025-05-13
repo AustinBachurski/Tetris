@@ -1,12 +1,9 @@
 #include "unity/unity.h"
 
-//#include "playfield/gameover.h"
-//#include "tetrimino/gravity.h"
-//#include "tetrimino/moveleft.h"
-//#include "tetrimino/moveright.h"
-#include "randombag/randombag.h"
 #include "placement/placement.h"
+#include "randombag/randombag.h"
 #include "rotation/rotation.h"
+#include "movement/movement.h"
 
 void setUp(void)
 { }
@@ -36,19 +33,14 @@ int main(void)
     RUN_TEST(rotate_red_tetrimino);
     RUN_TEST(rotate_magenta_tetrimino);
 
-    // RUN_TEST(light_blue_tetrimino_gravity_down);
-    // RUN_TEST(dark_blue_tetrimino_gravity_down);
-    // RUN_TEST(orange_tetrimino_gravity_down);
-    // RUN_TEST(yellow_tetrimino_gravity_down);
-    // RUN_TEST(green_tetrimino_gravity_down);
-    // RUN_TEST(red_tetrimino_gravity_down);
-    // RUN_TEST(magenta_tetrimino_gravity_down);
-// 
-    // RUN_TEST(move_light_blue_tetrimino_left);
-    // RUN_TEST(move_light_blue_tetrimino_right);
-// 
-    // RUN_TEST(game_over);
-// 
+    RUN_TEST(gravity_for_light_blue_tetrimino);
+    RUN_TEST(gravity_for_dark_blue_tetrimino);
+    RUN_TEST(gravity_for_orange_tetrimino);
+    RUN_TEST(gravity_for_yellow_tetrimino);
+    RUN_TEST(gravity_for_green_tetrimino);
+    RUN_TEST(gravity_for_red_tetrimino);
+    RUN_TEST(gravity_for_magenta_tetrimino);
+
     return UNITY_END();
 }
 

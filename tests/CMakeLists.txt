@@ -16,6 +16,7 @@ target_compile_options(tetris_tests PRIVATE
 target_sources(tetris_tests PRIVATE
     tests.c
     unity/unity.c
+    movement/movement.c
     randombag/randombag.c
     placement/placement.c
     rotation/rotation.c
@@ -24,6 +25,7 @@ target_sources(tetris_tests PRIVATE
 
 target_include_directories(tetris_tests PRIVATE
     unity
+    movement
     randombag
     placement
     rotation
