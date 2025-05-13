@@ -9,9 +9,9 @@
 void move_tetrimino_right(GameData *game)
 {
     MovementData data;
+
     data.target = game->currentTetrimino;
     ++data.target.centroid;
-
     indices_for(&game->currentTetrimino, data.sourceIndices);
     indices_for(&data.target, data.targetIndices);
 

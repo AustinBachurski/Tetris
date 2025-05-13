@@ -16,9 +16,9 @@ static void set_rotation_value(Tetrimino *tetrimino);
 void rotate_tetrimino(GameData *game)
 {
     MovementData data;
+
     data.target = game->currentTetrimino;
     set_rotation_value(&data.target);
-
     indices_for(&game->currentTetrimino, data.sourceIndices);
     indices_for(&data.target, data.targetIndices);
 

@@ -11,9 +11,9 @@
 bool gravity_down(GameData *game)
 {
     MovementData data;
+
     data.target = game->currentTetrimino;
     data.target.centroid -= PLAYFIELD_COLUMNS;
-
     indices_for(&game->currentTetrimino, data.sourceIndices);
     indices_for(&data.target, data.targetIndices);
 
@@ -29,9 +29,9 @@ bool gravity_down(GameData *game)
 void move_tetrimino_down(GameData *game)
 {
     MovementData data;
+
     data.target = game->currentTetrimino;
     data.target.centroid -= PLAYFIELD_COLUMNS;
-
     indices_for(&game->currentTetrimino, data.sourceIndices);
     indices_for(&data.target, data.targetIndices);
 
