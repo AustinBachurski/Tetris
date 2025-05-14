@@ -64,7 +64,7 @@ I wanted to improve my skills in C and GDB so I wrote this classic Tetris clone 
 ## Controls
 
 - The game can be quit at any time by pressing `ctrl + c`.
-- Currently key bindings can be adjusted by editing the switch statement in `src/game/input.c` and recompiling.
+- Key bindings can be adjusted by editing the switch statement in `src/game/input.c` and recompiling.
 - At present, controls are hard coded for use with the Colemak layout that I use as follows:
 
 | Move Left | Move Right | Move Down | Rotate |
