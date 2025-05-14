@@ -49,6 +49,22 @@ int main(void)
     RUN_TEST(movedown_for_red_tetrimino);
     RUN_TEST(movedown_for_magenta_tetrimino);
 
+    RUN_TEST(moveleft_for_light_blue_tetrimino);
+    RUN_TEST(moveleft_for_dark_blue_tetrimino);
+    RUN_TEST(moveleft_for_orange_tetrimino);
+    RUN_TEST(moveleft_for_yellow_tetrimino);
+    RUN_TEST(moveleft_for_green_tetrimino);
+    RUN_TEST(moveleft_for_red_tetrimino);
+    RUN_TEST(moveleft_for_magenta_tetrimino);
+
+    RUN_TEST(moveright_for_light_blue_tetrimino);
+    RUN_TEST(moveright_for_dark_blue_tetrimino);
+    RUN_TEST(moveright_for_orange_tetrimino);
+    RUN_TEST(moveright_for_yellow_tetrimino);
+    RUN_TEST(moveright_for_green_tetrimino);
+    RUN_TEST(moveright_for_red_tetrimino);
+    RUN_TEST(moveright_for_magenta_tetrimino);
+
     return UNITY_END();
 }
 

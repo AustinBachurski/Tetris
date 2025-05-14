@@ -18,8 +18,8 @@ target_sources(tetris_tests PRIVATE
     unity/unity.c
     movement/gravity.c
     movement/movedown.c
-#    movement/moveleft.c
-#    movement/moveright.c
+    movement/moveleft.c
+    movement/moveright.c
     randombag/randombag.c
     placement/placement.c
     rotation/rotation.c
