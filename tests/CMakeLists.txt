@@ -16,7 +16,10 @@ target_compile_options(tetris_tests PRIVATE
 target_sources(tetris_tests PRIVATE
     tests.c
     unity/unity.c
-    movement/movement.c
+    movement/gravity.c
+    movement/movedown.c
+#    movement/moveleft.c
+#    movement/moveright.c
     randombag/randombag.c
     placement/placement.c
     rotation/rotation.c
