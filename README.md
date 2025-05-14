@@ -7,7 +7,7 @@ I wanted to improve my skills in C and GDB so I wrote this classic Tetris clone 
 ## Supported Enviroments
 
 - GNU/Linux
-- WSL via Windows
+- Windows via WSL
 - Untested on Mac
 
 
