@@ -65,6 +65,14 @@ int main(void)
     RUN_TEST(moveright_for_red_tetrimino);
     RUN_TEST(moveright_for_magenta_tetrimino);
 
+    RUN_TEST(nowrap_for_light_blue_tetrimino);
+    RUN_TEST(nowrap_for_dark_blue_tetrimino);
+    RUN_TEST(nowrap_for_orange_tetrimino);
+    RUN_TEST(nowrap_for_yellow_tetrimino);
+    RUN_TEST(nowrap_for_green_tetrimino);
+    RUN_TEST(nowrap_for_red_tetrimino);
+    RUN_TEST(nowrap_for_magenta_tetrimino);
+
     return UNITY_END();
 }
 

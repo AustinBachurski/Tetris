@@ -23,6 +23,7 @@ target_sources(tetris_tests PRIVATE
     randombag/randombag.c
     placement/placement.c
     rotation/rotation.c
+    rotation/nowrap.c
     utilities/utilities.c
 )
 

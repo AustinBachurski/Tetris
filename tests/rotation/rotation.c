@@ -2,7 +2,6 @@
 
 #include "../../src/game/gamesettings.h"
 #include "../../src/tetrimino/tetrimino.h"
-#include "../../src/tetrimino/rotation.h"
 
 #include "../utilities/utilities.h"
 
