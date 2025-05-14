@@ -35,10 +35,8 @@ void movedown_for_light_blue_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
@@ -68,10 +66,8 @@ void movedown_for_dark_blue_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
@@ -101,10 +97,8 @@ void movedown_for_orange_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
@@ -134,10 +128,8 @@ void movedown_for_yellow_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
@@ -167,10 +159,8 @@ void movedown_for_green_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
@@ -200,10 +190,8 @@ void movedown_for_red_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
@@ -233,10 +221,8 @@ void movedown_for_magenta_tetrimino(void)
         move_tetrimino_down(&game);
 
         TEST_ASSERT_MESSAGE(
-            location - PLAYFIELD_COLUMNS == game.currentTetrimino.centroid,
+            (location -= PLAYFIELD_COLUMNS) == game.currentTetrimino.centroid,
             moveFailed);
-
-        location = game.currentTetrimino.centroid;
     }
 
     TEST_ASSERT_MESSAGE(location == game.currentTetrimino.centroid,
